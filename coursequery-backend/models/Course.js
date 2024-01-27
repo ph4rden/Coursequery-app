@@ -25,6 +25,11 @@ const CourseSchema = new mongoose.Schema({
   professor: String,
   location: String,
   description: String,
+  user: {
+    type: mongoose.Schema.ObjectId, 
+    ref: 'User',
+    required: true
+  }
 });
 
 CourseSchema.pre('save', function(next){
