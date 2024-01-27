@@ -9,15 +9,18 @@ const {
 
 const router = express.Router();
 
+const { protect, authorize } = require('../middleware/auth');
+
+
 router
     .route("/")
     .get(getCourses)
-    .post(createCourse);
+    .post(protect, createCourse);
 
 router
   .route("/:id")
   .get(getCourse)
-  .put(updateCourse)
-  .delete(deleteCourse);
+  .put(protect, updateCourse)
+  .delete(protect, deleteCourse);
 
 module.exports = router;

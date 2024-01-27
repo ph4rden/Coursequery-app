@@ -4,22 +4,25 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
 dotenv.config({ path: "./config/config.env" });
-const errorHandler = require('./middleware/error')
-const connectDB = require('./config/db')
+const cookieParser = require('cookie-parser');
+const errorHandler = require('./middleware/error');
+const connectDB = require('./config/db');
 
-// Retrieving MongoDB connection URL from environment variables
 const mongoURL = process.env.mongoURL;
-
-// Creating an instance of the Express application
 const app = express();
 
-app.use(cors()); // Using CORS middleware to handle Cross-Origin Resource Sharing
-app.use(express.json()); // Parsing incoming JSON requests
-connectDB(); // Connecting to the MongoDB database using the connectDB function
+app.use(cors()); 
+app.use(express.json());
+app.use(cookieParser());
+connectDB(); 
 
 // Routing 
 const courses = require('./routes/courses');
+const auth = require('./routes/auth');
+
+// Mount routers
 app.use('/api/v1/courses', courses);
+app.use('/api/v1/auth', auth);
 
 
 app.use(errorHandler)
