@@ -1,4 +1,8 @@
 import ratemyprofessor
+import requests
+from bs4 import BeautifulSoup
+
+
 ProfessorName = input("Enter Professor Name: ")
 
 
@@ -15,3 +19,29 @@ if professor is not None:
         print("Would Take Again: N/A")
 else:
     print("Professor Not Found")
+
+
+
+
+def wiki_scrape():
+    section = input("Enter the section of the class (CSE, MATH): ")
+    number = input("Enter the number of the class (3313, 2415): ")
+
+    try:
+        response = requests.get(url="https://catalog.uta.edu/search/?P=" + section + "%20" + number)
+        soup = BeautifulSoup(response.content, 'lxml')
+
+        # Find the course description
+        course_description = soup.find('p', class_='courseblockdesc')
+
+        if course_description:
+            print(course_description.get_text())
+            return course_description.get_text()
+        else:
+            print("Course description not found.")
+            return None
+    except Exception as e:
+        print(e)
+
+# Example usage
+wiki_scrape()
