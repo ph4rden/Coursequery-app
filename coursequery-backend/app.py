@@ -22,7 +22,6 @@ else:
 
 
 
-
 def wiki_scrape():
     section = input("Enter the section of the class (CSE, MATH): ")
     number = input("Enter the number of the class (3313, 2415): ")
