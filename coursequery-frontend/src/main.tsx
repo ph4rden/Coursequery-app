@@ -11,12 +11,16 @@ import './index.css'
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: <Dashboard />,
   },
   {
     path: "/dashboard",
-    element: <Dashboard />
-  }
+    element: <App />
+  },
+  // {
+  //   path: "/schedules/:id", 
+  //   element: 
+  // } 
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

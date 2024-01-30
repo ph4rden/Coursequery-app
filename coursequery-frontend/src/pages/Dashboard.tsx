@@ -2,17 +2,42 @@ import { useState } from "react";
 import womenschedule from "../assets/womanschedule.svg";
 import searchIcon from "../assets/search.svg";
 import Modal from "../components/Modal";
+import fakeData from "../data/db.json";
+
+interface Schedule {
+  id: number;
+  title: string;
+  body: string;
+}
+
+interface Data {
+  schedules: Schedule[];
+}
 
 export default function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(true);
-
+  const data: Data = fakeData as Data;
+  
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
   };
+  console.log(data);
 
-  const handleAddCourse = (name: string) => {
+  const scheduleList = data.schedules.map((schedule: Schedule) => (
+    <li className="mb-1" key={schedule.id.toString()}>
+        <a
+            href={`/schedules/${schedule.id}`}
+            className="flex items-center justify-between whitespace-pre py-2 px-3 rounded-lg text-current no-underline gap-4 hover:bg-gray-200"
+        >
+            {schedule.title}
+        </a>
+    </li>
+  ));
+
+  const handleAddSchedule = (name: string) => {
     console.log('Schedule Added:', name);
-    // Here you can integrate the logic to add the course to your data (e.g., API call)
+    // Here you can integrate the logic to add the course to your data (e.g., API call) will change later
+    console.log(name);
   };
 
   return (
@@ -62,28 +87,13 @@ export default function Dashboard() {
         <nav className="flex-1 overflow-auto pt-4">
           <ul className="list-none m-0 p-0">
             {/* List of schedules we're gonna have to map */}
-            <li className="mb-1">
-              <a
-                href={`/schedules/1`}
-                className="flex items-center justify-between whitespace-pre py-2 px-3 rounded-lg text-current no-underline gap-4 hover:bg-gray-200"
-              >
-                Schedule 1
-              </a>
-            </li>
-            <li className="mb-1">
-              <a
-                href={`/schedules/2`}
-                className="flex items-center justify-between whitespace-pre py-2 px-3 rounded-lg text-current no-underline gap-4 hover:bg-gray-200"
-              >
-                Schedule 2
-              </a>
-            </li>
+            {scheduleList}
           </ul>
         </nav>
       </div>
       {/* Detail */}
       <div className="flex-1 p-8">
-        <Modal isOpen={isModalOpen} onClose={toggleModal} onAdd={handleAddCourse} />
+        <Modal isOpen={isModalOpen} onClose={toggleModal} onAdd={handleAddSchedule} />
       </div>
     </div>
   );
