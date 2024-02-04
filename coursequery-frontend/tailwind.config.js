@@ -11,6 +11,9 @@ module.exports = {
   theme: {
     container: {
       center: true,
+      fontFamily: {
+        display: ['Lato', 'sans-serif'],
+      },
       padding: "2rem",
       screens: {
         "2xl": "1400px",
