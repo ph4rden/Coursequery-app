@@ -3,6 +3,7 @@ import womenschedule from "../assets/womanschedule.svg";
 import searchIcon from "../assets/search.svg";
 import Modal from "../components/Modal";
 import fakeData from "../data/db.json";
+import { Scheduler } from "@aldabil/react-scheduler";
 
 interface Schedule {
   id: number;
@@ -15,14 +16,16 @@ interface Data {
 }
 
 export default function Dashboard() {
-  const [isModalOpen, setIsModalOpen] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   const data: Data = fakeData as Data;
-  
-  const toggleModal = () => {
+
+  const toggleModal = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
     setIsModalOpen(!isModalOpen);
-  };
+  };  
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -34,17 +37,17 @@ export default function Dashboard() {
 
   const scheduleList = filteredSchedules.map((schedule: Schedule) => (
     <li className="mb-1" key={schedule.id.toString()}>
-        <a
-            href={`/schedules/${schedule.id}`}
-            className="flex items-center justify-between whitespace-pre py-2 px-3 rounded-lg text-current no-underline gap-4 hover:bg-gray-200"
-        >
-            {schedule.title}
-        </a>
+      <a
+        href={`/schedules/${schedule.id}`}
+        className="flex items-center justify-between whitespace-pre py-2 px-3 rounded-lg text-current no-underline gap-4 hover:bg-gray-200"
+      >
+        {schedule.title}
+      </a>
     </li>
   ));
 
   const handleAddSchedule = (name: string) => {
-    console.log('Schedule Added:', name);
+    console.log("Schedule Added:", name);
     // Here you can integrate the logic to add the course to your data (e.g., API call) will change later
     console.log(name);
   };
@@ -104,7 +107,30 @@ export default function Dashboard() {
       </div>
       {/* Detail */}
       <div className="flex-1 p-8">
-        <Modal isOpen={isModalOpen} onClose={toggleModal} onAdd={handleAddSchedule} />
+        <Scheduler
+          view="week"
+          disableViewNavigator = {true}
+          navigation = {false}
+          events={[
+            {
+              event_id: 1,
+              title: "Event 1",
+              start: new Date("2021/5/2 09:30"),
+              end: new Date("2021/5/2 10:30"),
+            },
+            {
+              event_id: 2,
+              title: "Event 2",
+              start: new Date("2021/5/4 10:00"),
+              end: new Date("2021/5/4 11:00"),
+            },
+          ]}
+        />
+          <Modal
+            isOpen={isModalOpen}
+            onClose={toggleModal}
+            onAdd={handleAddSchedule}
+          />
       </div>
     </div>
   );
