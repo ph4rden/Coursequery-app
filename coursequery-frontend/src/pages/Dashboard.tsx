@@ -16,14 +16,23 @@ interface Data {
 
 export default function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+
   const data: Data = fakeData as Data;
   
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
   };
-  console.log(data);
 
-  const scheduleList = data.schedules.map((schedule: Schedule) => (
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const filteredSchedules = data.schedules.filter((schedule: Schedule) =>
+    schedule.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const scheduleList = filteredSchedules.map((schedule: Schedule) => (
     <li className="mb-1" key={schedule.id.toString()}>
         <a
             href={`/schedules/${schedule.id}`}
@@ -61,6 +70,8 @@ export default function Dashboard() {
               placeholder="Search"
               type="search"
               name="q"
+              value={searchQuery} // Set the value of the input to searchQuery
+              onChange={handleSearchChange} // Update searchQuery on input change
             />
             <img
               src={searchIcon}
