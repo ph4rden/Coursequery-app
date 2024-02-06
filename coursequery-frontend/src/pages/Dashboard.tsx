@@ -3,7 +3,7 @@ import womenschedule from "../assets/womanschedule.svg";
 import searchIcon from "../assets/search.svg";
 import Modal from "../components/Modal";
 import fakeData from "../data/db.json";
-import { Scheduler } from "@aldabil/react-scheduler";
+import Schedule from "@/components/Schedule";
 
 interface Schedule {
   id: number;
@@ -107,25 +107,7 @@ export default function Dashboard() {
       </div>
       {/* Detail */}
       <div className="flex-1 p-8">
-        <Scheduler
-          view="week"
-          disableViewNavigator = {true}
-          navigation = {false}
-          events={[
-            {
-              event_id: 1,
-              title: "Event 1",
-              start: new Date("2021/5/2 09:30"),
-              end: new Date("2021/5/2 10:30"),
-            },
-            {
-              event_id: 2,
-              title: "Event 2",
-              start: new Date("2021/5/4 10:00"),
-              end: new Date("2021/5/4 11:00"),
-            },
-          ]}
-        />
+          <Schedule />
           <Modal
             isOpen={isModalOpen}
             onClose={toggleModal}
