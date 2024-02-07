@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from 'axios';
 import { Icons } from "@/components/icons";
 import { Button } from "../components/ui/button";
 import {
@@ -13,8 +14,16 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 
 export default function Register() {
+    const [URL, setURL] = useState('http://localhost:8080/api/v1/auth/register');
+    const [role, setRole] = useState("user");
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState('');
+
+    const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setName(event.target.value);
+    };
 
     const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setEmail(event.target.value);
@@ -26,11 +35,23 @@ export default function Register() {
         setPassword(event.target.value);
     };
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        // Logging for demonstration, replace with actual submission logic
-        console.log("Submitted Email:", email);
-        console.log("Submitted Password:", password);
+
+        try {
+            const res = await axios.post(URL, {
+                name,
+                email,
+                password,
+                role
+            });
+            const { token } = res.data;
+            localStorage.setItem('token', token);
+            console.log('Registration successful', token);
+        } catch (err) {
+            console.error(err);
+            setError('Failed to create account');
+        }
     };
 
     return (
@@ -70,6 +91,15 @@ export default function Register() {
                                         Or continue with
                                     </span>
                                 </div>
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="email">Name</Label>
+                                <Input
+                                    id="name"
+                                    type="text"
+                                    value={name}
+                                    onChange={handleNameChange}
+                                />
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="email">Email</Label>
