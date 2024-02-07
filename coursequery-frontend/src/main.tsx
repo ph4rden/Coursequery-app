@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import Dashboard from './pages/Dashboard.tsx';
-import RegistrationLoginPage from './pages/RegistrationLoginPage.tsx';
+import RegistrationLoginPage from './pages/Login.tsx';
 
 import {
   createBrowserRouter,
