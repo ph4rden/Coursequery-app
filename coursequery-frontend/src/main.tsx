@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import Dashboard from './pages/Dashboard.tsx';
+import ErrorPage from './pages/ErrorPage.tsx';
 import {
   createBrowserRouter,
   RouterProvider,
@@ -11,12 +12,17 @@ import './index.css'
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: <Dashboard />,
+    errorElement: <ErrorPage />,
   },
   {
     path: "/dashboard",
-    element: <Dashboard />
-  }
+    element: <App />
+  },
+  // {
+  //   path: "/schedules/:id", 
+  //   element: 
+  // } 
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
