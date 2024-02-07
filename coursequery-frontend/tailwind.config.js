@@ -9,6 +9,10 @@ module.exports = {
   ],
   prefix: "",
   theme: {
+    colors: {
+      'darkPurple': '#6730ec',
+      'lightPurple': '#ac8df5',
+    },
     container: {
       center: true,
       padding: "2rem",
