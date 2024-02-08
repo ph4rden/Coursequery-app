@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from 'axios';
+import axios from "axios";
 import { Icons } from "@/components/icons";
 import { Button } from "../components/ui/button";
 import {
@@ -14,12 +14,13 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 
 export default function Register() {
-    const [URL, setURL] = useState('http://localhost:8080/api/v1/auth/register');
-    const [role, setRole] = useState("user");
+    const [URL] = useState("http://localhost:8080/api/v1/auth/register");
+    const [role] = useState("user");
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [error, setError] = useState('');
+    const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setName(event.target.value);
@@ -37,28 +38,34 @@ export default function Register() {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        setIsLoading(true); // Start loading
 
         try {
-            const res = await axios.post(URL, {
+            const response = await axios.post(URL, {
                 name,
                 email,
                 password,
-                role
+                role,
             });
-            const { token } = res.data;
-            localStorage.setItem('token', token);
-            console.log('Registration successful', token);
+            const { token } = response.data;
+            localStorage.setItem("token", token);
+            console.log("Registration successful", token);
+            // Navigate to another page or show a success message here
+            setIsLoading(false); // Stop loading on success
         } catch (err) {
             console.error(err);
-            setError('Failed to create account');
+            setError("Failed to create account");
+            setIsLoading(false); // Stop loading on error
         }
     };
 
     return (
         <div className="relative min-h-screen flex justify-center items-center flowy-bg">
-            {/* Login button at the top right corner */}
             <div className="absolute top-12 right-12">
-                <Button variant="ghost" className="text-2xl active:bg-lightPurple">
+                <Button
+                    variant="ghost"
+                    className="text-2xl active:bg-lightPurple"
+                >
                     Login
                 </Button>
             </div>
@@ -76,24 +83,8 @@ export default function Register() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="grid gap-4">
-                            <div className="flex justify-center">
-                                <Button variant="outline">
-                                    <Icons.google className="mr-2 h-4 w-4" />
-                                    Google
-                                </Button>
-                            </div>
-                            <div className="relative">
-                                <div className="absolute inset-0 flex items-center">
-                                    <span className="w-full border-t" />
-                                </div>
-                                <div className="relative flex justify-center text-xs uppercase">
-                                    <span className="bg-background px-2 text-muted-foreground">
-                                        Or continue with
-                                    </span>
-                                </div>
-                            </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="email">Name</Label>
+                                <Label htmlFor="name">Name</Label>
                                 <Input
                                     id="name"
                                     type="text"
@@ -122,9 +113,19 @@ export default function Register() {
                             </div>
                         </CardContent>
                         <CardFooter>
-                            <Button type="submit" className="w-full">
-                                Create account
-                            </Button>
+                            {isLoading ? (
+                                <Button
+                                    type="button"
+                                    disabled
+                                    className="w-full"
+                                >
+                                    Creating account...
+                                </Button>
+                            ) : (
+                                <Button type="submit" className="w-full">
+                                    Create account
+                                </Button>
+                            )}
                         </CardFooter>
                     </form>
                 </Card>
