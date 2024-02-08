@@ -12,8 +12,11 @@ import {
 } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
+import { useNavigate } from 'react-router-dom';
+
 
 export default function Register() {
+    const navigate = useNavigate();
     const [URL] = useState("http://localhost:8080/api/v1/auth/register");
     const [role] = useState("user");
     const [name, setName] = useState("");
@@ -51,6 +54,7 @@ export default function Register() {
             localStorage.setItem("token", token);
             console.log("Registration successful", token);
             // Navigate to another page or show a success message here
+            navigate('/dashboard');
             setIsLoading(false); // Stop loading on success
         } catch (err) {
             console.error(err);
@@ -64,7 +68,7 @@ export default function Register() {
             <div className="absolute top-12 right-12">
                 <Button
                     variant="ghost"
-                    className="text-2xl active:bg-lightPurple"
+                    className="text-2xl active:bg-cqLightPurple"
                 >
                     Login
                 </Button>
