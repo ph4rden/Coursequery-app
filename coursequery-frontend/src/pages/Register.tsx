@@ -12,8 +12,7 @@ import {
 } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { useNavigate } from 'react-router-dom';
-
+import { useNavigate } from "react-router-dom";
 
 export default function Register() {
     const navigate = useNavigate();
@@ -54,7 +53,7 @@ export default function Register() {
             localStorage.setItem("token", token);
             console.log("Registration successful", token);
             // Navigate to another page or show a success message here
-            navigate('/dashboard');
+            navigate("/dashboard");
             setIsLoading(false); // Stop loading on success
         } catch (err) {
             console.error(err);
@@ -87,6 +86,22 @@ export default function Register() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="grid gap-4">
+                            <div className="flex justify-center">
+                                <Button variant="outline">
+                                    <Icons.google className="mr-2 h-4 w-4" />
+                                    Google
+                                </Button>
+                            </div>
+                            <div className="relative">
+                                <div className="absolute inset-0 flex items-center">
+                                    <span className="w-full border-t" />
+                                </div>
+                                <div className="relative flex justify-center text-xs uppercase">
+                                    <span className="bg-background px-2 text-muted-foreground">
+                                        Or continue with
+                                    </span>
+                                </div>
+                            </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="name">Name</Label>
                                 <Input
