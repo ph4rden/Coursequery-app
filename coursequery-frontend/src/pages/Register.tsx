@@ -82,7 +82,7 @@ export default function Register() {
                                 Create an account
                             </CardTitle>
                             <CardDescription>
-                                Enter your email below to create your account
+                                Enter your email below or use Google to create your account
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="grid gap-4">
