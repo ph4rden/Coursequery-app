@@ -2,8 +2,6 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import Dashboard from './pages/Dashboard.tsx';
-import RegistrationLoginPage from './pages/Login.tsx';
-
 import {
   createBrowserRouter,
   RouterProvider,
@@ -13,15 +11,12 @@ import './index.css'
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: <Register />,
+    errorElement: <ErrorPage />,
   },
   {
     path: "/dashboard",
     element: <Dashboard />
-  },
-  {
-    path: "/register-login",
-    element: <RegistrationLoginPage />
   }
 ]);
 
