@@ -2,8 +2,10 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import Dashboard from './pages/Dashboard.tsx';
-import Register from './pages/Register.tsx';
-import ErrorPage from './pages/ErrorPage.tsx';
+import Register from './pages/Register.tsx'
+import ErrorPage from './pages/ErrorPage.tsx'
+import Login from './pages/Login.tsx'
+
 import {
   createBrowserRouter,
   RouterProvider,
@@ -18,13 +20,12 @@ const router = createBrowserRouter([
   },
   {
     path: "/dashboard",
-    element: <Dashboard />,
-    errorElement: <ErrorPage />,
+    element: <Dashboard />
   },
-  // {
-  //   path: "/schedules/:id", 
-  //   element: 
-  // } 
+  {
+    path: "/login",
+    element: <Login />,
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
