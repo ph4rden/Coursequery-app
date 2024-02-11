@@ -90,7 +90,7 @@ export default function Dashboard() {
           </form>
           <form>
             <button
-              className="text-purple-700 font-medium py-2 px-3 bg-white border-none rounded-lg shadow-sm hover:shadow-md active:translate-y-0.5 transition on"
+              className="text-cqPurple font-medium py-2 px-3 bg-white border-none rounded-lg shadow-sm hover:shadow-md active:translate-y-0.5 transition on"
               onClick={toggleModal}
             >
               New

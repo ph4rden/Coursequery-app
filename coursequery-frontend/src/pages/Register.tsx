@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import { Icons } from "@/components/icons";
 import { Button } from "../components/ui/button";
 import {
@@ -11,10 +12,21 @@ import {
 } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
+import { useNavigate } from "react-router-dom";
 
 export default function Register() {
+    const navigate = useNavigate();
+    const [URL] = useState("http://localhost:8080/api/v1/auth/register");
+    const [role] = useState("user");
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setName(event.target.value);
+    };
 
     const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setEmail(event.target.value);
@@ -26,18 +38,37 @@ export default function Register() {
         setPassword(event.target.value);
     };
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        // Logging for demonstration, replace with actual submission logic
-        console.log("Submitted Email:", email);
-        console.log("Submitted Password:", password);
+        setIsLoading(true); // Start loading
+
+        try {
+            const response = await axios.post(URL, {
+                name,
+                email,
+                password,
+                role,
+            });
+            const { token } = response.data;
+            localStorage.setItem("token", token);
+            console.log("Registration successful", token);
+            // Navigate to another page or show a success message here
+            navigate("/dashboard");
+            setIsLoading(false); // Stop loading on success
+        } catch (err) {
+            console.error(err);
+            setError("Failed to create account");
+            setIsLoading(false); // Stop loading on error
+        }
     };
 
     return (
         <div className="relative min-h-screen flex justify-center items-center flowy-bg">
-            {/* Login button at the top right corner */}
             <div className="absolute top-12 right-12">
-                <Button variant="ghost" className="text-2xl active:bg-lightPurple">
+                <Button
+                    variant="ghost"
+                    className="text-2xl active:bg-cqLightPurple"
+                >
                     Login
                 </Button>
             </div>
@@ -51,7 +82,7 @@ export default function Register() {
                                 Create an account
                             </CardTitle>
                             <CardDescription>
-                                Enter your email below to create your account
+                                Enter your email below or use Google to create your account
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="grid gap-4">
@@ -70,6 +101,15 @@ export default function Register() {
                                         Or continue with
                                     </span>
                                 </div>
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="name">Name</Label>
+                                <Input
+                                    id="name"
+                                    type="text"
+                                    value={name}
+                                    onChange={handleNameChange}
+                                />
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="email">Email</Label>
@@ -92,9 +132,19 @@ export default function Register() {
                             </div>
                         </CardContent>
                         <CardFooter>
-                            <Button type="submit" className="w-full">
-                                Create account
-                            </Button>
+                            {isLoading ? (
+                                <Button
+                                    type="button"
+                                    disabled
+                                    className="w-full"
+                                >
+                                    Creating account...
+                                </Button>
+                            ) : (
+                                <Button type="submit" className="w-full">
+                                    Create account
+                                </Button>
+                            )}
                         </CardFooter>
                     </form>
                 </Card>
