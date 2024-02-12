@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import Nav from "@/components/ui/nav";
 import React from "react";
-import ReviewIcon from "@/assets/review.svg";
 import Car from "@/components/ui/lp_carousel";
 
 export default function LandingPage() {
@@ -13,8 +12,8 @@ export default function LandingPage() {
           {/*  TEST! Carousel added to the left */}
           <div className="w-full lg:w-2/4 px-40 py-20 lg:order-2 relative">
             {/* Adjusted margin */}
-            <img src={ReviewIcon} alt="Review" />
-            {/* <Car /> */}
+            {/* <img src={ReviewIcon} alt="Review" /> */}
+            <Car />
           </div>
           <div className="w-full lg:w-2/4 px-10 py-20">
             <h1 className="font-semibold text-4xl md:text-5xl leading-tight md:leading-tight mb-10">

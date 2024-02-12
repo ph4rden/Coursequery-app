@@ -20,29 +20,41 @@ const Car: FunctionComponent<CarProps> = () => {
         <CarouselItem
           style={{
             display: "flex",
+            flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
           }}
         >
-          Simply Type In Your Courses
+          <img src={SearchIcon} alt="Search" />
+          <span className="font-semibold text-base">
+            Simple Type In Your Classes
+          </span>{" "}
         </CarouselItem>
         <CarouselItem
           style={{
             display: "flex",
+            flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
           }}
         >
-          Explore Professor Ratings
+          <img src={ReviewIcon} alt="Review" />
+          <span className="font-semibold text-base">
+            Explore Professor Ratings
+          </span>{" "}
         </CarouselItem>
         <CarouselItem
           style={{
             display: "flex",
+            flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
           }}
         >
-          Optimize Your Schedule
+          <img src={SchedIcon} alt="Schedule" />
+          <span className="font-semibold text-base">
+            Optimize Your Schedule
+          </span>{" "}
         </CarouselItem>
       </CarouselContent>
       <CarouselPrevious />
