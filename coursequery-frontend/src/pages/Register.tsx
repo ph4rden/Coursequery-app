@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Icons } from "@/components/icons";
 import { Button } from "../components/ui/button";
+import { useGoogleLogin } from '@react-oauth/google';
 import {
     Card,
     CardContent,
@@ -11,6 +12,7 @@ import {
 } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
+
 
 export default function Register() {
     const [email, setEmail] = useState("");
@@ -32,6 +34,10 @@ export default function Register() {
         console.log("Submitted Email:", email);
         console.log("Submitted Password:", password);
     };
+    
+    //for custom google login
+    const login = useGoogleLogin({
+        onSuccess: tokenResponse => console.log(tokenResponse),});
 
     return (
         <div className="relative min-h-screen flex justify-center items-center flowy-bg">
@@ -56,10 +62,10 @@ export default function Register() {
                         </CardHeader>
                         <CardContent className="grid gap-4">
                             <div className="flex justify-center">
-                                <Button variant="outline">
-                                    <Icons.google className="mr-2 h-4 w-4" />
-                                    Google
-                                </Button>
+                            <Button variant="outline" onClick={() => login()}>
+                                <Icons.google className="mr-2 h-4 w-4" />
+                                Google
+                            </Button>
                             </div>
                             <div className="relative">
                                 <div className="absolute inset-0 flex items-center">

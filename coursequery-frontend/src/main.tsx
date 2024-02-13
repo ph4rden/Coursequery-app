@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import Dashboard from './pages/Dashboard.tsx';
 import Register from './pages/Register.tsx'
 import ErrorPage from './pages/ErrorPage.tsx'
@@ -11,6 +12,8 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import './index.css'
+
+const googleID="394187105839-jk8v5ign2io6o465ultcq5htbm0nisju.apps.googleusercontent.com"
 
 const router = createBrowserRouter([
   {
@@ -30,6 +33,8 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <GoogleOAuthProvider clientId={googleID}>
+      <RouterProvider router={router} />
+    </GoogleOAuthProvider>
   </React.StrictMode>,
 )

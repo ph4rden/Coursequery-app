@@ -1,8 +1,15 @@
+const { OAuth2Client } = require("google-auth-library");
 const User = require("../models/User");
 const asyncHandler = require("../middleware/async");
 const ErrorResponse = require("../utils/errorResponse");
 const sendEmail = require("../utils/sendEmail");
 const crypto = require("crypto");
+
+//initilizing google oauth
+const googleClient = new OAuth2Client({
+  clientId: `${process.env.GOOGLE_CLIENT_ID}`,
+  clientSecret: `${process.env.GOOGLE_CLIENT_SECRET}`,
+});
 
 // @desc    Register user
 // @route   POST /api/v1/auth/register
@@ -168,6 +175,32 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
   user.resetPasswordToken = undefined; 
   user.resetPasswordExpire = undefined; 
   await user.save();
+
+  sendTokenResponse(user, 200, res);
+});
+
+//@desc    Google authentication controller
+//@route   POST /api/v1/auth/authenticateuser
+exports.authenticateUser = asyncHandler(async (req, res, next) => {
+  const { token } = req.body;
+
+  const ticket = await googleClient.verifyIdToken({
+    idToken: token,
+    audience: `${process.env.GOOGLE_CLIENT_ID}`,
+  });
+
+  const payload = ticket.getPayload();
+
+  let user = await User.findOne({ email: payload?.email });
+  if (!user) {
+    user = await new User({
+      email: payload?.email,
+      avatar: payload?.picture,
+      name: payload?.name,
+    });
+
+    await user.save();
+  }
 
   sendTokenResponse(user, 200, res);
 });
