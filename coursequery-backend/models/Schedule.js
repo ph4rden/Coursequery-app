@@ -1,9 +1,26 @@
 const mongoose = require("mongoose");
-const slugify = require("slugify");
 
 const ScheduleSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: [true, "Please add a Schedule name"],
-      },
-})
+  user: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  name: {
+    type: String,
+    required: [true, "Please add a name for the schedule"],
+    trim: true,
+  },
+  courses: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Course'
+    }
+  ],
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+module.exports = mongoose.model("Schedule", ScheduleSchema);
