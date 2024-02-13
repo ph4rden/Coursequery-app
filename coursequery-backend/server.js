@@ -18,10 +18,12 @@ connectDB();
 
 // Routing 
 const courses = require('./routes/courses');
+const schedules = require('./routes/schedules');
 const auth = require('./routes/auth');
 
 // Mount routers
 app.use('/api/v1/courses', courses);
+app.use('/api/v1/schedules', schedules);
 app.use('/api/v1/auth', auth);
 
 
