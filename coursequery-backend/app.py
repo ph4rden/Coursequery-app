@@ -1,24 +1,27 @@
 import ratemyprofessor
 import requests
 from bs4 import BeautifulSoup
+from transformers import pipeline
+import time
+
+def get_professors():
+
+    ProfessorName = input("Enter Professor Name: ")
 
 
-ProfessorName = input("Enter Professor Name: ")
-
-
-professor = ratemyprofessor.get_professor_by_school_and_name(
-    ratemyprofessor.get_school_by_name("University of Texas at Arlington"), ProfessorName)
-if professor is not None:
-    print("%s works in the %s Department of %s." % (professor.name, professor.department, professor.school.name))
-    print("Rating: %s / 5.0" % professor.rating)
-    print("Difficulty: %s / 5.0" % professor.difficulty)
-    print("Total Ratings: %s" % professor.num_ratings)
-    if professor.would_take_again is not None:
-        print(("Would Take Again: %s" % round(professor.would_take_again, 1)) + '%')
+    professor = ratemyprofessor.get_professor_by_school_and_name(
+        ratemyprofessor.get_school_by_name("University of Texas at Arlington"), ProfessorName)
+    if professor is not None:
+        print("%s works in the %s Department of %s." % (professor.name, professor.department, professor.school.name))
+        print("Rating: %s / 5.0" % professor.rating)
+        print("Difficulty: %s / 5.0" % professor.difficulty)
+        print("Total Ratings: %s" % professor.num_ratings)
+        if professor.would_take_again is not None:
+            print(("Would Take Again: %s" % round(professor.would_take_again, 1)) + '%')
+        else:
+            print("Would Take Again: N/A")
     else:
-        print("Would Take Again: N/A")
-else:
-    print("Professor Not Found")
+        print("Professor Not Found")
 
 
 
@@ -34,13 +37,39 @@ def wiki_scrape():
         course_description = soup.find('p', class_='courseblockdesc')
 
         if course_description:
-            print(course_description.get_text())
-            return course_description.get_text()
+            description = course_description.get_text()
+            print(description)
+            return description
         else:
             print("Course description not found.")
-            return None
+            return ""
     except Exception as e:
         print(e)
+        return ""
 
-# Example usage
-wiki_scrape()
+
+def classification_text(classifier, text):
+    start = time.time()
+    output = classifier(text)
+    end = time.time()
+    return output, (end - start)
+
+
+
+get_professors()
+description = input('Write how you are feeling: ') #wiki_scrape()
+
+if description:
+    result = None
+    elapsed_time = None
+    """TODO: CHANGE DESCRIPTION TO THE OUTPUT OF REDDIT SCRAPPER"""
+    analysis = description
+    classifier = pipeline("sentiment-analysis")
+
+    result, elapsed_time = classification_text(classifier, analysis)
+    label = result[0]['label']
+    score = result[0]['score']
+    print(label,score)
+else:
+    print("No description")
+

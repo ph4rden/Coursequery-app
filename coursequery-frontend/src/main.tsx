@@ -18,7 +18,7 @@ const googleID="394187105839-jk8v5ign2io6o465ultcq5htbm0nisju.apps.googleusercon
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Register />,
+    element: <Login />,
     errorElement: <ErrorPage />,
   },
   {
@@ -28,6 +28,10 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/register",
+    element: <Register />,
   },
 ]);
 

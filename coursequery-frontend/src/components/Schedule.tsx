@@ -2,7 +2,7 @@ import { Scheduler } from "@aldabil/react-scheduler";
 
 export default function Schedule() {
   return (
-    <>
+    <div>
       <Scheduler
         view="week"
         week={{
@@ -44,6 +44,6 @@ export default function Schedule() {
           },
         ]}
       />
-    </>
+    </div>
   );
 }
