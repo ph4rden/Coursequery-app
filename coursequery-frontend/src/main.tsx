@@ -6,6 +6,7 @@ import Register from "./pages/Register.tsx";
 import LandingPage from "./pages/LandingPage.tsx";
 import ErrorPage from "./pages/ErrorPage.tsx";
 import Login from "./pages/Login.tsx";
+import AboutPage from "./pages/About.tsx"
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
@@ -32,6 +33,10 @@ const router = createBrowserRouter([
     path: "/landingpage",
     element: <LandingPage />,
   },
+  {
+    path: "/about",
+    element: <AboutPage />,
+  }
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
