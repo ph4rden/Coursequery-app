@@ -9,6 +9,7 @@ import Login from "./pages/Login.tsx";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
+import ProfilePage from "./pages/Profile.tsx";
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/profile",
+    element: <ProfilePage />,
   },
   {
     path: "/register",
