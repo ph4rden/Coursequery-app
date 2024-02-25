@@ -1,6 +1,23 @@
 import * as React from "react"
-
+import ReactCardFlip from "react-card-flip";
 import { cn } from "@/lib/utils"
+
+interface TeamMemberCardProps {
+  children: React.ReactNode; 
+}
+
+const TeamMemberCard = ({ 
+  children 
+}: React.PropsWithChildren<TeamMemberCardProps>) => {
+
+  return (
+    <Card className="w-1/6 border border-black mx-auto">
+      <div className="p-3 h-full">
+        {children}
+      </div>
+    </Card>
+  );
+};
 
 const Card = React.forwardRef<
   HTMLDivElement,
@@ -76,4 +93,4 @@ const CardFooter = React.forwardRef<
 ))
 CardFooter.displayName = "CardFooter"
 
-export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent, TeamMemberCard }
