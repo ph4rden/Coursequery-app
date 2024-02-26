@@ -1,15 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Icons } from "@/components/icons";
+import Nav from "@/components/ui/nav";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -54,74 +48,45 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="relative min-h-screen flex justify-center items-center flowy-bg">
-      <div className="absolute top-12 right-12"></div>
+    <div className="absolute inset-0 -z-10 w-full h-[32%] bg-purple-700">
+      <Nav />
+      <div className="text-center text-2xl font-semibold text-white">
+        Edit Profile
+      </div>
+      <div className="relative py-10 flex flex-col items-center justify-center">
+        <Avatar
+          style={{
+            marginBottom: "20px",
+            width: "100px",
+            height: "100px",
+            border: "4px solid white",
+            borderRadius: "50%",
+          }}
+        >
+          <AvatarImage src="https://github.com/shadcn.png" />
+          <AvatarFallback>CN</AvatarFallback>
+        </Avatar>
+        <div className="absolute top-12 right-12"></div>
 
-      {/* Main content */}
-      <div className="flex items-start justify-center w-full max-w-4xl mx-4 space-x-8">
-        <Card className="flex-1">
-          <form onSubmit={handleSubmit}>
-            <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl">Edit Your Profile</CardTitle>
-              <CardDescription>
-                Enter in a new email and password
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-2">
-                <Label htmlFor="email">New Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com" // the users email {email}
-                  value={email}
-                  onChange={handleEmailChange}
-                />
-              </div>
-              <div className="grid gap-2 my-4">
-                <Label htmlFor="password">New Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={handlePasswordChange}
-                />
-                <Label htmlFor="password">Confirm Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={handlePasswordChange}
-                />
-              </div>
-            </CardContent>
-            <CardFooter className="flex flex-col space-y-2">
-              {isLoading ? (
-                <Button type="button" disabled className="w-full">
-                  Loading...
-                </Button>
-              ) : (
-                <Button type="submit" className="w-full">
-                  Confirm Changes
-                </Button>
-              )}
-              {error ? (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-2 w-2" />
-                  <AlertTitle>Invalid email or password</AlertTitle>
-                </Alert>
-              ) : (
-                // <Alert variant="default">
-                //   <AlertTitle>
-                //     Your profile has successfuly been edited!
-                //   </AlertTitle>
-                //   <AlertDescription>{/* text */}</AlertDescription>
-                // </Alert>
-                <></>
-              )}
-            </CardFooter>
-          </form>
-        </Card>
+        {/* Main content */}
+        <div className="flex items-start justify-center w-full max-w-4xl mx-4 space-x-8"></div>
+        <div className="grid w-full max-w-sm items-center gap-1.5">
+          <Label htmlFor="email">Email</Label>
+          <Input type="email" id="email" placeholder="johnsmith@gmail.com" />
+          <div className="grid w-full max-w-sm items-center gap-1.5">
+            <Label htmlFor="password">Current Password</Label>
+            <Input type="password" id="password" placeholder="********" />
+          </div>
+          <div className="grid w-full max-w-sm items-center gap-1.5">
+            <Label htmlFor="password">New Password</Label>
+            <Input type="password" id="password" placeholder="" />
+          </div>
+          <div className="grid w-full max-w-sm items-center gap-1.5">
+            <Label htmlFor="password">Confirm Password</Label>
+            <Input type="password" id="password" placeholder="" />
+          </div>
+          <Button variant="secondary">Update</Button>
+        </div>
       </div>
     </div>
   );
