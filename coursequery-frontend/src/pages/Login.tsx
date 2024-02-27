@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
+import { useGoogleLogin } from '@react-oauth/google';
 import {
     Card,
     CardContent,
@@ -55,6 +56,15 @@ export default function LoginPage() {
         }
     };
 
+    const login = useGoogleLogin({
+        onSuccess: (tokenResponse) => {
+            // Handle successful login response
+            console.log(tokenResponse);
+            // Navigate to dashboard on success
+            navigate("/dashboard");
+        }
+    });
+
     return (
         <div className="relative min-h-screen flex justify-center items-center flowy-bg">
             <div className="absolute top-12 right-12">
@@ -80,10 +90,10 @@ export default function LoginPage() {
                         </CardHeader>
                         <CardContent className="grid gap-4">
                             <div className="flex justify-center">
-                                <Button variant="outline">
-                                    <Icons.google className="mr-2 h-4 w-4" />
-                                    Google
-                                </Button>
+                            <Button variant="outline" onClick={() => login()}>
+                                <Icons.google className="mr-2 h-4 w-4" />
+                                Google
+                            </Button>
                             </div>
                             <div className="relative">
                                 <div className="absolute inset-0 flex items-center">

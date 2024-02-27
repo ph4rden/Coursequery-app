@@ -68,8 +68,13 @@ export default function Register() {
     
     //for custom google login
     const login = useGoogleLogin({
-        onSuccess: tokenResponse => console.log(tokenResponse),});
-
+        onSuccess: (tokenResponse) => {
+            // Handle successful login response
+            console.log(tokenResponse);
+            // Navigate to dashboard on success
+            navigate("/dashboard");
+        }
+    });
     return (
         <div className="relative min-h-screen flex justify-center items-center flowy-bg">
             <div className="absolute top-12 right-12">
