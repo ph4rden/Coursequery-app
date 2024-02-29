@@ -32,6 +32,7 @@ def wiki_scrape_api():
     data = request.json
     section = data['section']
     number = data['number']
+
     try:
         response = requests.get(url="https://catalog.uta.edu/search/?P=" + section + "%20" + number)
         soup = BeautifulSoup(response.content, 'lxml')
