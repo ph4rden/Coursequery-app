@@ -4,6 +4,7 @@ import searchIcon from "../assets/search.svg";
 import Modal from "../components/Modal";
 import fakeData from "../data/db.json";
 import Schedule from "@/components/Schedule";
+import ScheduleList from "@/components/ScheduleList";
 
 interface Schedule {
     id: number;
@@ -19,8 +20,6 @@ export default function Dashboard() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
 
-    const data: Data = fakeData as Data;
-
     const toggleModal = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         e.stopPropagation();
@@ -30,21 +29,6 @@ export default function Dashboard() {
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
     };
-
-    const filteredSchedules = data.schedules.filter((schedule: Schedule) =>
-        schedule.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-    const scheduleList = filteredSchedules.map((schedule: Schedule) => (
-        <li className="mb-1" key={schedule.id.toString()}>
-            <a
-                href={`/schedules/${schedule.id}`}
-                className="flex items-center justify-between whitespace-pre py-2 px-3 rounded-lg text-current no-underline gap-4 hover:bg-gray-200"
-            >
-                {schedule.title}
-            </a>
-        </li>
-    ));
 
     const handleAddSchedule = (name: string) => {
         console.log("Schedule Added:", name);
@@ -101,7 +85,7 @@ export default function Dashboard() {
                 <nav className="flex-1 overflow-auto pt-4">
                     <ul className="list-none m-0 p-0">
                         {/* List of schedules we're gonna have to map */}
-                        {scheduleList}
+                        {<ScheduleList query={searchQuery}/>}
                     </ul>
                 </nav>
             </div>
