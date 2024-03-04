@@ -17,6 +17,9 @@ const Nav: React.FC<NavProps> = () => {
   const handleSignInClick = () => {
     navigate("/login"); // Navigate to the "/login" page
   };
+  const handleLogoutClick = () => {
+    navigate("/landingpage"); // Navigate to the "/login" page
+  };
 
   return (
     <div
@@ -47,7 +50,7 @@ const Nav: React.FC<NavProps> = () => {
                 </a>
               </li>
               <li>
-                <Button>Logout</Button>
+                <Button onClick={handleLogoutClick}>Logout</Button>
               </li>
             </>
           ) : (
