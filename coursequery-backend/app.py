@@ -1,75 +1,65 @@
+from flask import Flask, request, jsonify
 import ratemyprofessor
-import requests
 from bs4 import BeautifulSoup
+import requests
 from transformers import pipeline
 import time
 
-def get_professors():
+app = Flask(__name__)
 
-    ProfessorName = input("Enter Professor Name: ")
-
-
+@app.route('/get_professors', methods=['POST'])
+def get_professors_api():
+    data = request.json
+    ProfessorName = data['ProfessorName']
     professor = ratemyprofessor.get_professor_by_school_and_name(
         ratemyprofessor.get_school_by_name("University of Texas at Arlington"), ProfessorName)
     if professor is not None:
-        print("%s works in the %s Department of %s." % (professor.name, professor.department, professor.school.name))
-        print("Rating: %s / 5.0" % professor.rating)
-        print("Difficulty: %s / 5.0" % professor.difficulty)
-        print("Total Ratings: %s" % professor.num_ratings)
-        if professor.would_take_again is not None:
-            print(("Would Take Again: %s" % round(professor.would_take_again, 1)) + '%')
-        else:
-            print("Would Take Again: N/A")
+        response = {
+            "name": professor.name,
+            "department": professor.department,
+            "school": professor.school.name,
+            "rating": professor.rating,
+            "difficulty": professor.difficulty,
+            "total_ratings": professor.num_ratings,
+            "would_take_again": round(professor.would_take_again, 1) if professor.would_take_again is not None else "N/A"
+        }
     else:
-        print("Professor Not Found")
+        response = {"error": "Professor Not Found"}
+    return jsonify(response)
 
-
-
-def wiki_scrape():
-    section = input("Enter the section of the class (CSE, MATH): ")
-    number = input("Enter the number of the class (3313, 2415): ")
+@app.route('/wiki_scrape', methods=['POST'])
+def wiki_scrape_api():
+    data = request.json
+    section = data['section']
+    number = data['number']
 
     try:
         response = requests.get(url="https://catalog.uta.edu/search/?P=" + section + "%20" + number)
         soup = BeautifulSoup(response.content, 'lxml')
-
-        # Find the course description
         course_description = soup.find('p', class_='courseblockdesc')
-
         if course_description:
             description = course_description.get_text()
-            print(description)
-            return description
         else:
-            print("Course description not found.")
-            return ""
+            description = "Course description not found."
     except Exception as e:
-        print(e)
-        return ""
+        description = str(e)
+    return jsonify({"description": description})
 
-
-def classification_text(classifier, text):
-    start = time.time()
-    output = classifier(text)
-    end = time.time()
-    return output, (end - start)
-
-
-
-get_professors()
-description = input('Write how you are feeling: ') #wiki_scrape()
-
-if description:
-    result = None
-    elapsed_time = None
-    """TODO: CHANGE DESCRIPTION TO THE OUTPUT OF REDDIT SCRAPPER"""
-    analysis = description
+@app.route('/classify_text', methods=['POST'])
+def classify_text_api():
+    data = request.json
+    text = data['text']
     classifier = pipeline("sentiment-analysis")
+    start = time.time()
+    result = classifier(text)
+    end = time.time()
+    elapsed_time = end - start
+    response = {
+        "label": result[0]['label'],
+        "score": result[0]['score'],
+        "elapsed_time": elapsed_time
+    }
+    return jsonify(response)
 
-    result, elapsed_time = classification_text(classifier, analysis)
-    label = result[0]['label']
-    score = result[0]['score']
-    print(label,score)
-else:
-    print("No description")
-
+if __name__ == '__main__':
+    app.run(debug=True)
