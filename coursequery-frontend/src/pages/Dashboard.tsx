@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import womenschedule from "../assets/womanschedule.svg";
 import searchIcon from "../assets/search.svg";
 import Modal from "../components/Modal";
 import fakeData from "../data/db.json";
 import Schedule from "@/components/Schedule";
 import ScheduleList from "@/components/ScheduleList";
+import axios from "axios";
 
 interface Schedule {
     id: number;
@@ -19,6 +20,24 @@ interface Data {
 export default function Dashboard() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const [currentUser, setCurrentUser] = useState<string>("");
+
+    const token = localStorage.getItem("token");
+
+     // function to get current user 
+     const fetchCurrentUser = async () => {
+        try {
+            const response = await axios.get("http://localhost:8080/api/v1/auth/me", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            setCurrentUser(response.data.data._id);
+            // console.log("Current User:", currentUser)
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
     const toggleModal = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
@@ -35,6 +54,10 @@ export default function Dashboard() {
         // Here you can integrate the logic to add the course to your data (e.g., API call) will change later
         console.log(name);
     };
+
+    useEffect(() => {
+        fetchCurrentUser();
+    })
 
     return (
         <div className="flex min-h-screen w-full">
@@ -85,7 +108,7 @@ export default function Dashboard() {
                 <nav className="flex-1 overflow-auto pt-4">
                     <ul className="list-none m-0 p-0">
                         {/* List of schedules we're gonna have to map */}
-                        {<ScheduleList query={searchQuery}/>}
+                        {<ScheduleList query={searchQuery} currentUser={currentUser}/>}
                     </ul>
                 </nav>
             </div>

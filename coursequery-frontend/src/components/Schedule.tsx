@@ -29,6 +29,7 @@ export default function Schedule() {
     };
 
     // Fetch events from remote DB
+    // Going to have to redo this to only get courses for the schedule we're on
     const fetchRemote = async (query: ViewEvent): Promise<ProcessedEvent[]> => {
         try {
             const response = await axios.get(URL, {
