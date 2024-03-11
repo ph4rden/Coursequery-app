@@ -3,6 +3,7 @@ import Nav from "@/components/ui/nav";
 import { Card, CardDescription, TeamMemberCard } from "@/components/ui/card";
 import { CardContent } from "@mui/material";
 import ReactCardFlip from "react-card-flip";
+import shaunpic from "@/assets/shaunpic.jpeg";
 
 
 export default function LoginPage() {
@@ -41,20 +42,20 @@ export default function LoginPage() {
                         <h1 className="font-semibold text-4xl md:5xl text-center mt-0 mb-5">
                             Meet our team
                         </h1>
-                        <div className="flex -mx-4 h-auto" style={{ height: '390px' }}>
-                            <TeamMemberCard>
+                        <div className="flex -mx-4 h-auto">
+                            <TeamMemberCard imageSource={shaunpic}>
                                 Brian Phan
                             </TeamMemberCard>
-                            <TeamMemberCard>
+                            <TeamMemberCard imageSource={shaunpic}>
                                 Shaun Bakken
                             </TeamMemberCard>
-                            <TeamMemberCard>
+                            <TeamMemberCard imageSource={shaunpic}>
                                 Ali Abdul-Hameed
                             </TeamMemberCard>
-                            <TeamMemberCard>
+                            <TeamMemberCard imageSource={shaunpic}>
                                 Joshua Idahosa
                             </TeamMemberCard>
-                            <TeamMemberCard>
+                            <TeamMemberCard imageSource={shaunpic}>
                                 Joshua Lian
                             </TeamMemberCard>
                         </div>

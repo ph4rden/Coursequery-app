@@ -4,16 +4,29 @@ import { cn } from "@/lib/utils"
 
 interface TeamMemberCardProps {
   children: React.ReactNode; 
+  imagesource: String;
+  frontContent: React.ReactNode;
+  backContent: React.ReactNode;
+
 }
 
-const TeamMemberCard = ({ 
-  children 
+const TeamMemberCard = ({
+  children,
+  imageSource,
+  frontContent,
+  backContent,
 }: React.PropsWithChildren<TeamMemberCardProps>) => {
-
   return (
-    <Card className="w-1/6 border border-black mx-auto">
-      <div className="p-3 h-full">
-        {children}
+    <Card className="w-1/6 border border-black mx-auto rounded-lg overflow-hidden">
+      <div className="relative h-96">
+        <img
+          src={imageSource}
+          alt="Team Member"
+          className="w-full h-full object-cover rounded-t-lg"
+        />
+        <div className="absolute inset-x-0 bottom-0 p-3 bg-black/50 text-white rounded-b-lg">
+          {children}
+        </div>
       </div>
     </Card>
   );
