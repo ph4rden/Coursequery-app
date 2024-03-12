@@ -27,7 +27,6 @@ exports.addCourseToSchedule = asyncHandler(async (req, res) => {
 // @access  Public
 exports.getSchedules = asyncHandler(async (req, res, next) => {
     const userId = req.params.userId;
-    console.log(userId);
     const schedules = await Schedule.find({ user: userId });
     res.status(200).json({
       success: true,
@@ -40,7 +39,10 @@ exports.getSchedules = asyncHandler(async (req, res, next) => {
   // @route   GET /api/v1/schedule/:id
   // @access  Public
   exports.getSchedule = asyncHandler(async (req, res, next) => {
-    const schedule = await Schedule.findById(req.params.id);
+    const scheduleId = req.params.id;
+    const schedule = await Schedule.findById({ _id: scheduleId })
+    console.log("schedule: ",schedule);
+    console.log("hi")
     if (!schedule) {
       return next(
         new ErrorResponse(`schedule not found with id of ${req.params.id}`),

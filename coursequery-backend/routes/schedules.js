@@ -16,11 +16,12 @@ router.route("/:scheduleId/courses/:courseId").post(protect, addCourseToSchedule
 router
     .route("/")
     .post(protect, createSchedule);
-router.route("/:userId").get(protect, getSchedules);
+
+router.route("/user/:userId").get(protect, getSchedules);
+
 router
   .route("/:id")
-  .get(protect, getSchedules)
-  .get(getSchedule)
+  .get(protect, getSchedule)
   .put(protect, updateSchedule)
   .delete(protect, deleteSchedule);
 
