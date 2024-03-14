@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import womenschedule from "../assets/womanschedule.svg";
 import searchIcon from "../assets/search.svg";
 import Modal from "../components/Modal";
@@ -13,18 +14,47 @@ interface Schedule {
     body: string;
 }
 
-interface Data {
-    schedules: Schedule[];
-}
-
 export default function Dashboard() {
+    const token = localStorage.getItem("token");
+    const [addScheduleURL, setAddScheduleURL] = useState<string>("http://localhost:8080/api/v1/schedules");
+    
+    // ----------------- Modal Props -----------------
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [scheduleName, setScheduleName] = useState("");
+    const handleScheduleNameChange = (name: string) => {
+        setScheduleName(name);
+    };
+    const handleAddSchedule = async (name: string) => {
+        try {
+            const response = await axios.post(addScheduleURL, {
+                name: name
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            console.log("Schedule Added: ",response.data);
+            setFetchTrigger(prev => prev + 1);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+    const toggleModal = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsModalOpen(!isModalOpen);
+    };
+    // ----------------- Modal Props -----------------
+    
+
+    // ----------------- ScheduleList Props -----------------
+    const [fetchTrigger, setFetchTrigger] = useState(0);
     const [searchQuery, setSearchQuery] = useState("");
     const [currentUser, setCurrentUser] = useState<string>("");
+    // ----------------- ScheduleList Props -----------------
+    
 
-    const token = localStorage.getItem("token");
-
-     // function to get current user 
+    // function to get current user 
      const fetchCurrentUser = async () => {
         try {
             const response = await axios.get("http://localhost:8080/api/v1/auth/me", {
@@ -39,25 +69,14 @@ export default function Dashboard() {
         }
     };
 
-    const toggleModal = (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsModalOpen(!isModalOpen);
-    };
-
+    // function to handle search change for modal search bar
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
     };
 
-    const handleAddSchedule = (name: string) => {
-        console.log("Schedule Added:", name);
-        // Here you can integrate the logic to add the course to your data (e.g., API call) will change later
-        console.log(name);
-    };
-
     useEffect(() => {
         fetchCurrentUser();
-    })
+    }, []);
 
     return (
         <div className="flex min-h-screen w-full">
@@ -108,7 +127,7 @@ export default function Dashboard() {
                 <nav className="flex-1 overflow-auto pt-4">
                     <ul className="list-none m-0 p-0">
                         {/* List of schedules we're gonna have to map */}
-                        {<ScheduleList query={searchQuery} currentUser={currentUser}/>}
+                        {<ScheduleList query={searchQuery} currentUser={currentUser} fetchTrigger={fetchTrigger}/>}
                     </ul>
                 </nav>
             </div>
@@ -118,7 +137,9 @@ export default function Dashboard() {
                 <Modal
                     isOpen={isModalOpen}
                     onClose={toggleModal}
-                    onAdd={handleAddSchedule}
+                    handleAdd={handleAddSchedule}
+                    handleScheduleName={handleScheduleNameChange}
+                    scheduleName={scheduleName}
                 />
             </div>
         </div>

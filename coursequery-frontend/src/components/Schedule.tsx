@@ -1,5 +1,6 @@
 import { Scheduler } from "@aldabil/react-scheduler";
 import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import {
     EventActions,
     ProcessedEvent,
@@ -15,8 +16,6 @@ export default function Schedule() {
         "http://localhost:8080/api/v1/courses"
     );
     const token = localStorage.getItem("token");
-    const [events, setEvents] = useState<ProcessedEvent[]>([]);
-
     // Map day of week to string
     const dayOfWeekMap: { [key: number]: string } = {
         0: "sunday",
@@ -26,6 +25,59 @@ export default function Schedule() {
         4: "thursday",
         5: "friday",
         6: "saturday",
+    };
+
+    // Events state and ID
+    const [events, setEvents] = useState<ProcessedEvent[]>([]);
+
+    // Schedule Specific Stuff
+    const { scheduleId } = useParams<{ scheduleId: string }>();
+    const [selectedScheduleCourses, setSelectedScheduleCourses] = useState(
+        {} as any
+    ); // array of course id's belonging to schedule
+
+    // using the scheduleId passed in from the URL, grabbed using useParams, to fetch the schedule data
+    const fetchScheduleWithId = async (id: string) => {
+        try {
+            const response = await axios.get(
+                `http://localhost:8080/api/v1/schedules/${id}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            // console.log("Schedule Data", response.data.data);
+            return response.data.data;
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    // Get course data for a single course ID, used as a help function for fetchCoursesByIds
+    const fetchCourseWithId = async (id: string) => {
+        const url = `http://localhost:8080/api/v1/courses/${id}`;
+        try {
+            const response = await axios.get(url);
+            return response.data; 
+        } catch (error) {
+            console.error("Error fetching course data for ID", id, error);
+            return null; 
+        }
+    };
+
+    // Function to fetch data for an array of course IDs using fetchCourseWithId as defined above
+    const fetchCoursesByIds = async (ids: string[]) => {
+        try {
+            const coursesDataPromises = ids.map((id) => fetchCourseWithId(id));
+            const coursesData = await Promise.all(coursesDataPromises);
+
+            console.log(`ALL COURSE DATA FOR SCHEDULE: ${scheduleId}: `, coursesData);
+            return coursesData; // Return the array of fetched courses data
+        } catch (error) {
+            console.error("Error fetching courses data", error);
+            return []; // Return an empty array or appropriate error handling
+        }
     };
 
     // Fetch events from remote DB
@@ -38,7 +90,7 @@ export default function Schedule() {
                 },
             });
             const data = response.data.data;
-            console.log(data);
+            // console.log("fetchRemote Output: ", data);
             const events = data.map((event: any) => {
                 const [startHours, startMinutes] = event.startTime.split(":");
                 const [endHours, endMinutes] = event.endTime.split(":");
@@ -78,32 +130,32 @@ export default function Schedule() {
 
     // Handle delete event
     const handleDelete = async (deletedId: string): Promise<void> => {
-      try {
-          const res = await axios.delete(`${URL}/${deletedId}`, {
-              headers: {
-                  Authorization: `Bearer ${token}`,
-              },
-          });
-          const updatedEvents = await fetchRemote({});
-          setEvents(updatedEvents);
-          console.log("Deleted event:", res.data);
-      } catch (error) {
-          console.error("Error deleting event:", error);
-          throw error;
-      }
-  };
+        try {
+            const res = await axios.delete(`${URL}/${deletedId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            const updatedEvents = await fetchRemote({});
+            setEvents(updatedEvents);
+            // console.log("Deleted event:", res.data);
+        } catch (error) {
+            console.error("Error deleting event:", error);
+            throw error;
+        }
+    };
 
     // Handle confirm when editing or creating an event
     const handleConfirm = async (
         event: ProcessedEvent,
         action: EventActions
     ): Promise<ProcessedEvent> => {
-        console.log("handleConfirm =", action, event);
+        // console.log("handleConfirm =", action, event);
         return new Promise((res, rej) => {
             let response;
             if (action === "edit") {
                 /** PUT event to remote DB */
-                console.log("PUT event to remote DB");
+                // console.log("PUT event to remote DB");
                 response = axios.put<ProcessedEvent>(
                     `${URL}/${event.event_id}`,
                     { ...event },
@@ -115,7 +167,7 @@ export default function Schedule() {
                 );
             } else if (action === "create") {
                 /**POST event to remote DB */
-                console.log("POST event to remote DB");
+                // console.log("POST event to remote DB");
                 const dayStrings = [
                     event.start.getDay(),
                     event.end.getDay(),
@@ -154,6 +206,17 @@ export default function Schedule() {
         });
     };
 
+    useEffect(() => {
+        const fetchScheduleSpecificEvents = async () => {
+            const schedule = await fetchScheduleWithId(scheduleId);
+            setSelectedScheduleCourses(schedule.courses);
+        };
+        fetchScheduleSpecificEvents();
+    }, [scheduleId]);
+
+
+    // console.log("Selected Schedule Information: ", selectedScheduleCourses);
+    fetchCoursesByIds(selectedScheduleCourses);
 
     return (
         <div>

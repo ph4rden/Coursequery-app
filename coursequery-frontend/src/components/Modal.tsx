@@ -5,16 +5,18 @@ import { Input } from "../components/ui/input";
 interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onAdd: (name: string) => void;
+    handleAdd: (name: string) => void;
+    handleScheduleName: (name: string) => void;
+    scheduleName: string;
 }
 
-export default function Modal({ isOpen, onClose, onAdd }: ModalProps) {
-    const [scheduleName, setScheduleName] = useState("");
+export default function Modal({ isOpen, onClose, handleAdd, handleScheduleName, scheduleName }: ModalProps) {
+    // const [scheduleName, setScheduleName] = useState("");
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        onAdd(scheduleName);
-        setScheduleName("");
+        handleAdd(scheduleName);
+        handleScheduleName("");
         onClose();
     };
 
@@ -33,7 +35,7 @@ export default function Modal({ isOpen, onClose, onAdd }: ModalProps) {
                         <form onSubmit={handleSubmit}>
                             <Input
                                 onChange={(e) =>
-                                    setScheduleName(e.target.value)
+                                    handleScheduleName(e.target.value)
                                 }
                                 value={scheduleName}
                                 placeholder="Schedule Name"

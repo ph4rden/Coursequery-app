@@ -1,11 +1,5 @@
-import fakeData from "../data/db.json";
 import axios from "axios";
 import { useState, useEffect } from "react";
-
-interface Data {
-    schedules: Schedule[];
-}
-
 interface Schedule {
     id: number;
     title: string;
@@ -15,11 +9,13 @@ interface Schedule {
 interface ScheduleListProps {
     query: string;
     currentUser: string;
+    fetchTrigger: number;
 }
 
 export default function ScheduleList({
     query,
     currentUser,
+    fetchTrigger,
 }: ScheduleListProps) {
     // const data: Data = fakeData as Data;
     const [scheduleData, setScheduleData] = useState([]);
@@ -29,29 +25,28 @@ export default function ScheduleList({
     );
     const token = localStorage.getItem("token");
 
+    // bring props up to parent and use modal to fetch trigger? to do 3/11/2024
     useEffect(() => {
-        if (currentUser) {
-            const updatedURL = `http://localhost:8080/api/v1/schedules/${currentUser}`;
-            fetchSchedules(updatedURL); // Pass the updated URL as a parameter
-        }
-    }, [currentUser]);
-
-    // fetch schedules from DB for this user
-    const fetchSchedules = async (url: string) => {
-        try {
-            const response = await axios.get(url, {
+        const fetchSchedules = async () => {
+          if (currentUser) {
+            const url = `http://localhost:8080/api/v1/schedules/user/${currentUser}`;
+            try {
+              const response = await axios.get(url, {
                 headers: {
-                    Authorization: `Bearer ${token}`,
+                  Authorization: `Bearer ${token}`,
                 },
-            });
-            // const data = response.data.data[0].courses;
-            const data = response.data.data;
-            console.log("Schedule Data", data);
-            setScheduleData(data);
-        } catch (error) {
-            console.error(error);
-        }
-    };
+              });
+              const data = response.data.data;
+              console.log("Schedule Data", data);
+              setScheduleData(data);
+            } catch (error) {
+              console.error(error);
+            }
+          }
+        };
+    
+        fetchSchedules();
+      }, [currentUser, fetchTrigger]); 
 
     // Filter schedules based on query
     const filteredSchedules = scheduleData.filter((schedule) =>
@@ -61,7 +56,7 @@ export default function ScheduleList({
     const scheduleList = filteredSchedules.map((schedule) => (
         <li className="mb-1" key={schedule._id}>
             <a
-                href={`/schedules/${schedule._id}`}
+                href={`/dashboard/${schedule._id}`}
                 className="flex items-center justify-between whitespace-pre py-2 px-3 rounded-lg text-current no-underline gap-4 hover:bg-gray-200"
             >
                 {schedule.name}
