@@ -10,11 +10,12 @@ import Schedule from "./components/Schedule.tsx";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
+import ProfilePage from "./pages/Profile.tsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <LandingPage />,
+    element: <LandingPage />, // Set LandingPage as the initial page
     errorElement: <ErrorPage />,
   },
   {
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/profile",
+    element: <ProfilePage />,
   },
   {
     path: "/register",
