@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "./button";
 import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface NavProps {
   className?: string;
@@ -8,7 +9,17 @@ interface NavProps {
 
 const Nav: React.FC<NavProps> = () => {
   const location = useLocation();
-  const isLoggedIn = location.pathname === "/profile"; // Check if on profile page
+  const isLoggedIn =
+    location.pathname === "/profile" || location.pathname === "/dashboard"; // Check if on profile/dashboard page
+
+  const navigate = useNavigate();
+
+  const handleSignInClick = () => {
+    navigate("/login"); // Navigate to the "/login" page
+  };
+  const handleLogoutClick = () => {
+    navigate("/landingpage"); // Navigate to the "/login" page
+  };
 
   return (
     <div
@@ -39,7 +50,7 @@ const Nav: React.FC<NavProps> = () => {
                 </a>
               </li>
               <li>
-                <Button>Logout</Button>
+                <Button onClick={handleLogoutClick}>Logout</Button>
               </li>
             </>
           ) : (
@@ -62,7 +73,7 @@ const Nav: React.FC<NavProps> = () => {
                 </a>
               </li>
               <li>
-                <Button>Login</Button>
+                <Button onClick={handleSignInClick}>Login</Button>
               </li>
             </>
           )}

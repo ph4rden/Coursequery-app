@@ -14,7 +14,7 @@ import ProfilePage from "./pages/Profile.tsx";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Login />,
+    element: <LandingPage />, // Set LandingPage as the initial page
     errorElement: <ErrorPage />,
   },
   {

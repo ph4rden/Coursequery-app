@@ -2,9 +2,16 @@ import { Button } from "@/components/ui/button";
 import Nav from "@/components/ui/nav";
 import React from "react";
 import ReviewIcon from "@/assets/review.svg";
+import { useNavigate } from "react-router-dom";
 // import Car from "@/components/ui/lp_carousel";
 
 export default function LandingPage() {
+  const navigate = useNavigate();
+
+  const handleSignUpClick = () => {
+    navigate("/register"); // Navigate to the "/register" page
+  };
+
   return (
     <div className="absolute inset-0 -z-10 h-full w-full bg-white [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)]">
       <Nav />
@@ -30,7 +37,9 @@ export default function LandingPage() {
             </p>
             <div className="mt-4">
               {/* just to move the button down*/}
-              <Button variant={"outline2"}>Sign Up</Button>
+              <Button variant={"outline2"} onClick={handleSignUpClick}>
+                Sign Up
+              </Button>
             </div>
           </div>
         </div>
