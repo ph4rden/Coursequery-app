@@ -14,19 +14,13 @@ import "./index.css";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Login />,
+    element: <LandingPage />,
     errorElement: <ErrorPage />,
   },
   {
     path: "/dashboard",
     element: <Dashboard />,
     errorElement: <ErrorPage />,
-    // children: [
-    //   {
-    //     path: "dashboard/:scheduleId",
-    //     element: <Dashboard />, 
-    //   }
-    // ]
   },
   {
     // Work in progress
@@ -40,10 +34,6 @@ const router = createBrowserRouter([
   {
     path: "/register",
     element: <Register />,
-  },
-  {
-    path: "/landingpage",
-    element: <LandingPage />,
   },
 ]);
 
