@@ -4,21 +4,24 @@ const {
     getSchedules, 
     updateSchedule, 
     deleteSchedule,
-    createSchedule
+    createSchedule,
+    addCourseToSchedule,
   } = require("../controllers/schedules");
 const router = express.Router();
 
 const { protect } = require("../middleware/auth");
 
+router.route("/:scheduleId/courses/:courseId").post(protect, addCourseToSchedule);
 
 router
     .route("/")
-    .get(getSchedules)
     .post(protect, createSchedule);
+
+router.route("/user/:userId").get(protect, getSchedules);
 
 router
   .route("/:id")
-  .get(getSchedule)
+  .get(protect, getSchedule)
   .put(protect, updateSchedule)
   .delete(protect, deleteSchedule);
 

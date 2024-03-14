@@ -1,12 +1,33 @@
 const Schedule = require("../models/Schedule");
+const Course = require("../models/Course");
 const asyncHandler = require("../middleware/async");
 const ErrorResponse = require("../utils/errorResponse");
+
+exports.addCourseToSchedule = asyncHandler(async (req, res) => {
+  const scheduleId = req.params.scheduleId; // Assuming you're sending these in the request body
+  const courseId = req.params.courseId;
+  const userSchedule = await Schedule.findById(scheduleId);
+  const course = await Course.findById(courseId);
+  if (!userSchedule) {
+    return res.status(400).send("Schedule not found");
+  }
+  if (!course) {
+    return res.status(400).send("Course not found");
+  }
+  userSchedule.courses.push(course);
+  await userSchedule.save();
+  res.status(201).json({
+    success: true,
+    data: userSchedule,
+  });
+});
 
 // @desc    Get all Schedules
 // @route   GET /api/v1/schedules
 // @access  Public
 exports.getSchedules = asyncHandler(async (req, res, next) => {
-    const schedules = await Schedule.find();
+    const userId = req.params.userId;
+    const schedules = await Schedule.find({ user: userId });
     res.status(200).json({
       success: true,
       count: schedules.length,
@@ -18,7 +39,10 @@ exports.getSchedules = asyncHandler(async (req, res, next) => {
   // @route   GET /api/v1/schedule/:id
   // @access  Public
   exports.getSchedule = asyncHandler(async (req, res, next) => {
-    const schedule = await Schedule.findById(req.params.id);
+    const scheduleId = req.params.id;
+    const schedule = await Schedule.findById({ _id: scheduleId })
+    console.log("schedule: ",schedule);
+    console.log("hi")
     if (!schedule) {
       return next(
         new ErrorResponse(`schedule not found with id of ${req.params.id}`),

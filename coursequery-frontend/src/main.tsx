@@ -6,6 +6,7 @@ import Register from "./pages/Register.tsx";
 import LandingPage from "./pages/LandingPage.tsx";
 import ErrorPage from "./pages/ErrorPage.tsx";
 import Login from "./pages/Login.tsx";
+import Schedule from "./components/Schedule.tsx";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
@@ -20,6 +21,12 @@ const router = createBrowserRouter([
   {
     path: "/dashboard",
     element: <Dashboard />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    // Work in progress
+    path: "dashboard/:scheduleId",
+    element: <Schedule />, 
   },
   {
     path: "/login",
@@ -32,10 +39,6 @@ const router = createBrowserRouter([
   {
     path: "/register",
     element: <Register />,
-  },
-  {
-    path: "/landingpage",
-    element: <LandingPage />,
   },
 ]);
 
