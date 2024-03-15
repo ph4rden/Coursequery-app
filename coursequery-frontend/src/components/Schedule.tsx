@@ -151,18 +151,15 @@ export default function Schedule() {
         }
     };
 
-    // Handle confirm when editing or creating an event
     const handleConfirm = async (
         event: ProcessedEvent,
         action: EventActions
     ): Promise<ProcessedEvent> => {
-        // console.log("handleConfirm =", action, event);
-        return new Promise((res, rej) => {
-            let response;
-            if (action === "edit") {
-                /** PUT event to remote DB */
-                // console.log("PUT event to remote DB");
-                response = axios.put<ProcessedEvent>(
+        let responseData;
+        if (action === "edit") {
+            /** PUT event to remote DB */
+            try {
+                const response = await axios.put<ProcessedEvent>(
                     `${URL}/${event.event_id}`,
                     { ...event },
                     {
@@ -171,31 +168,33 @@ export default function Schedule() {
                         },
                     }
                 );
-            } else if (action === "create") {
-                /**POST event to remote DB */
-                // console.log("POST event to remote DB");
+                responseData = response.data; // This now holds the resolved data
+            } catch (error) {
+                console.error("Error during PUT request:", error);
+                throw error; // Rethrow or handle as needed
+            }
+        } else if (action === "create") {
+            /**POST event to remote DB */
+            try {
                 const dayStrings = [
                     event.start.getDay(),
                     event.end.getDay(),
                 ].map((dayNum) => dayOfWeekMap[dayNum]);
                 const formatTime = (date: Date): string => {
                     const hours = date.getHours().toString().padStart(2, "0");
-                    const minutes = date
-                        .getMinutes()
-                        .toString()
-                        .padStart(2, "0");
+                    const minutes = date.getMinutes().toString().padStart(2, "0");
                     return `${hours}:${minutes}`;
                 };
-
+    
                 const startTime = formatTime(event.start);
                 const endTime = formatTime(event.end);
-
-                response = axios.post<ProcessedEvent>(
+    
+                const response = await axios.post<ProcessedEvent>(
                     URL,
                     {
                         title: event.title,
-                        startTime: startTime, // Use formatted startTime // This may be the issue
-                        endTime: endTime, // Use formatted endTime // May be the iss
+                        startTime: startTime,
+                        endTime: endTime,
                         days: dayStrings,
                         professor: event.professor,
                         location: event.location,
@@ -207,10 +206,24 @@ export default function Schedule() {
                         },
                     }
                 );
+                console.log("POT response: ", response.data.data._id);
+                const courseIdentification = response.data.data._id;
+                // tie a course to current schedule TODO
+                const response2 = await axios.post(`http://localhost:8080/api/v1/schedules/${scheduleId}/courses/${courseIdentification}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                console.log("Course added to schedule: ", response2.data);
+            } catch (error) {
+                console.error("Error during POST request:", error);
+                throw error; // Rethrow or handle as needed
             }
-            res({ ...event, event_id: event.event_id });
-        });
+        }
+        // Perform further actions with responseData if needed
+        return { ...event, event_id: event.event_id }; // Adjust as needed based on actual response structure
     };
+    
 
     useEffect(() => {
         const fetchScheduleSpecificEvents = async () => {
@@ -251,7 +264,6 @@ export default function Schedule() {
 
                 startDate.setHours(parseInt(formattedStartTime));
                 endDate.setHours(parseInt(formattedEndTime));
-                console.log("Start Date: ", startDate);
                 // Perform mapping to transform courses to another form if necessary
                 return {
                     event_id: course.data._id,

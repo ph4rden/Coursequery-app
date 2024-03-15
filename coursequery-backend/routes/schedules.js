@@ -11,7 +11,7 @@ const router = express.Router();
 
 const { protect } = require("../middleware/auth");
 
-router.route("/:scheduleId/courses/:courseId").post(protect, addCourseToSchedule);
+router.route("/:scheduleId/courses/:courseId").post(addCourseToSchedule);
 
 router
     .route("/")
