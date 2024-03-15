@@ -133,7 +133,7 @@ export default function Dashboard() {
             </div>
             {/* Detail */}
             <div className="flex-1 p-8">
-                <Schedule />
+                {/* <Schedule /> */}
                 <Modal
                     isOpen={isModalOpen}
                     onClose={toggleModal}

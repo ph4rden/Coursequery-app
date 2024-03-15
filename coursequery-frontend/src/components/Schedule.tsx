@@ -9,6 +9,7 @@ import {
 } from "@aldabil/react-scheduler/types";
 import axios from "axios";
 import { start } from "repl";
+import { set } from "date-fns";
 
 export default function Schedule() {
     // Token and URL
@@ -29,6 +30,11 @@ export default function Schedule() {
 
     // Events state and ID
     const [events, setEvents] = useState<ProcessedEvent[]>([]);
+
+    // course events
+    const [courses, setCourses] = useState(
+        {} as any
+    ); 
 
     // Schedule Specific Stuff
     const { scheduleId } = useParams<{ scheduleId: string }>();
@@ -211,12 +217,36 @@ export default function Schedule() {
             const schedule = await fetchScheduleWithId(scheduleId);
             setSelectedScheduleCourses(schedule.courses);
         };
+
         fetchScheduleSpecificEvents();
     }, [scheduleId]);
 
+    useEffect(() => {
+        // This should only run after selectedScheduleCourses is populated
+        if (selectedScheduleCourses.length > 0) {
+            const fetchEveryCourse = async () => {
+                const coursesObject = await fetchCoursesByIds(selectedScheduleCourses);
+                setCourses(coursesObject);
+            };
+            fetchEveryCourse();
+        }
+    }, [selectedScheduleCourses]);
 
-    // console.log("Selected Schedule Information: ", selectedScheduleCourses);
-    fetchCoursesByIds(selectedScheduleCourses);
+    // console.log("Courses: ", courses);
+    // courses.map((course: any) => {
+    //     console.log("hey: ", course);
+    // });
+
+    useEffect(() => {
+        // Define the mapping logic here, to run whenever `courses` updates
+        if (courses.length > 0) {
+            courses.map((course: any) => {
+                console.log("babb: ", course);
+                // Perform mapping to transform courses to another form if necessary
+            });
+            // If you need to transform and save the mapped data, update state here
+        }
+    }, [courses]);
 
     return (
         <div>
