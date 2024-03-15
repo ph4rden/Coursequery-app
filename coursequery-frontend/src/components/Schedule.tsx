@@ -1,5 +1,5 @@
 import { Scheduler } from "@aldabil/react-scheduler";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import {
     EventActions,
@@ -37,7 +37,7 @@ export default function Schedule() {
     ); 
 
     // Schedule Specific Stuff
-    const { scheduleId } = useParams<{ scheduleId: string }>();
+    let { scheduleId } = useParams<{ scheduleId: string }>();
     const [selectedScheduleCourses, setSelectedScheduleCourses] = useState(
         {} as any
     ); // array of course id's belonging to schedule
@@ -142,9 +142,10 @@ export default function Schedule() {
                     Authorization: `Bearer ${token}`,
                 },
             });
+            setSelectedScheduleCourses([]);
             const updatedEvents = await fetchRemote({});
             setEvents(updatedEvents);
-            // console.log("Deleted event:", res.data);
+            console.log("Deleted event:", res.data);
         } catch (error) {
             console.error("Error deleting event:", error);
             throw error;
@@ -248,7 +249,6 @@ export default function Schedule() {
     useEffect(() => {
         if (courses.length > 0) {
             const events = courses.map((course: any) => {
-                console.log("babb: ", course.data);
                 const [startHours, startMinutes] = course.data.startTime.split(":");
                 const [endHours, endMinutes] = course.data.endTime.split(":");
 
@@ -281,7 +281,6 @@ export default function Schedule() {
             });
             // If you need to transform and save the mapped data, update state here
             setEvents(events);
-            console.log("EventsISA: ", events);
         }
     }, [courses]);
 
