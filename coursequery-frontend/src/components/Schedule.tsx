@@ -232,19 +232,44 @@ export default function Schedule() {
         }
     }, [selectedScheduleCourses]);
 
-    // console.log("Courses: ", courses);
-    // courses.map((course: any) => {
-    //     console.log("hey: ", course);
-    // });
-
     useEffect(() => {
-        // Define the mapping logic here, to run whenever `courses` updates
         if (courses.length > 0) {
-            courses.map((course: any) => {
-                console.log("babb: ", course);
+            const events = courses.map((course: any) => {
+                console.log("babb: ", course.data);
+                const [startHours, startMinutes] = course.data.startTime.split(":");
+                const [endHours, endMinutes] = course.data.endTime.split(":");
+
+                // Format the time with leading zeros if necessary
+                const formattedStartTime = `${parseInt(startHours)
+                    .toString()
+                    .padStart(2, "0")}:${startMinutes.padStart(2, "0")}`;
+                const formattedEndTime = `${parseInt(endHours)
+                    .toString()
+                    .padStart(2, "0")}:${endMinutes.padStart(2, "0")}`;
+                const startDate = new Date();
+                const endDate = new Date();
+
+                startDate.setHours(parseInt(formattedStartTime));
+                endDate.setHours(parseInt(formattedEndTime));
+                console.log("Start Date: ", startDate);
                 // Perform mapping to transform courses to another form if necessary
+                return {
+                    event_id: course.data._id,
+                    title: course.data.title,
+                    start: startDate,
+                    end: endDate,
+                    disabled: false,
+                    admin_id: [1, 2, 3, 4],
+                    // everything after this has yet to be implemented into the component
+                    days: course.data.days,
+                    professor: course.data.professor,
+                    location: course.data.location,
+                    description: course.data.description,
+                };
             });
             // If you need to transform and save the mapped data, update state here
+            setEvents(events);
+            console.log("EventsISA: ", events);
         }
     }, [courses]);
 
@@ -300,7 +325,7 @@ export default function Schedule() {
                         </div>
                     );
                 }}
-                getRemoteEvents={fetchRemote}
+                // getRemoteEvents={fetchRemote}
                 onConfirm={handleConfirm}
                 onDelete={handleDelete}
             />
