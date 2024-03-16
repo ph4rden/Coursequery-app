@@ -40,7 +40,7 @@ export default function Schedule() {
     let { scheduleId } = useParams<{ scheduleId: string }>();
     const [selectedScheduleCourses, setSelectedScheduleCourses] = useState(
         {} as any
-    ); // array of course id's belonging to schedule
+    );
 
     // using the scheduleId passed in from the URL, grabbed using useParams, to fetch the schedule data
     const fetchScheduleWithId = async (id: string) => {
@@ -87,7 +87,6 @@ export default function Schedule() {
     };
 
     // Fetch events from remote DB
-    // Going to have to redo this to only get courses for the schedule we're on
     const fetchRemote = async (query: ViewEvent): Promise<ProcessedEvent[]> => {
         try {
             const response = await axios.get(URL, {
@@ -135,6 +134,7 @@ export default function Schedule() {
     };
 
     // Handle delete event
+    // TODO: Rerender the schedule after deleting an event
     const handleDelete = async (deletedId: string): Promise<void> => {
         try {
             const res = await axios.delete(`${URL}/${deletedId}`, {
@@ -225,7 +225,6 @@ export default function Schedule() {
         return { ...event, event_id: event.event_id }; // Adjust as needed based on actual response structure
     };
     
-
     useEffect(() => {
         const fetchScheduleSpecificEvents = async () => {
             const schedule = await fetchScheduleWithId(scheduleId);
@@ -249,6 +248,7 @@ export default function Schedule() {
     useEffect(() => {
         if (courses.length > 0) {
             const events = courses.map((course: any) => {
+                console.log("Course!: ", course);
                 const [startHours, startMinutes] = course.data.startTime.split(":");
                 const [endHours, endMinutes] = course.data.endTime.split(":");
 
