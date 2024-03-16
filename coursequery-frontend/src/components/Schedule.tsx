@@ -1,5 +1,5 @@
 import { Scheduler } from "@aldabil/react-scheduler";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import {
     EventActions,
@@ -9,6 +9,7 @@ import {
 } from "@aldabil/react-scheduler/types";
 import axios from "axios";
 import { start } from "repl";
+import { set } from "date-fns";
 
 export default function Schedule() {
     // Token and URL
@@ -30,11 +31,16 @@ export default function Schedule() {
     // Events state and ID
     const [events, setEvents] = useState<ProcessedEvent[]>([]);
 
+    // course events
+    const [courses, setCourses] = useState(
+        {} as any
+    ); 
+
     // Schedule Specific Stuff
-    const { scheduleId } = useParams<{ scheduleId: string }>();
+    let { scheduleId } = useParams<{ scheduleId: string }>();
     const [selectedScheduleCourses, setSelectedScheduleCourses] = useState(
         {} as any
-    ); // array of course id's belonging to schedule
+    );
 
     // using the scheduleId passed in from the URL, grabbed using useParams, to fetch the schedule data
     const fetchScheduleWithId = async (id: string) => {
@@ -81,7 +87,6 @@ export default function Schedule() {
     };
 
     // Fetch events from remote DB
-    // Going to have to redo this to only get courses for the schedule we're on
     const fetchRemote = async (query: ViewEvent): Promise<ProcessedEvent[]> => {
         try {
             const response = await axios.get(URL, {
@@ -129,6 +134,7 @@ export default function Schedule() {
     };
 
     // Handle delete event
+    // TODO: Rerender the schedule after deleting an event
     const handleDelete = async (deletedId: string): Promise<void> => {
         try {
             const res = await axios.delete(`${URL}/${deletedId}`, {
@@ -136,27 +142,25 @@ export default function Schedule() {
                     Authorization: `Bearer ${token}`,
                 },
             });
+            setSelectedScheduleCourses([]);
             const updatedEvents = await fetchRemote({});
             setEvents(updatedEvents);
-            // console.log("Deleted event:", res.data);
+            console.log("Deleted event:", res.data);
         } catch (error) {
             console.error("Error deleting event:", error);
             throw error;
         }
     };
 
-    // Handle confirm when editing or creating an event
     const handleConfirm = async (
         event: ProcessedEvent,
         action: EventActions
     ): Promise<ProcessedEvent> => {
-        // console.log("handleConfirm =", action, event);
-        return new Promise((res, rej) => {
-            let response;
-            if (action === "edit") {
-                /** PUT event to remote DB */
-                // console.log("PUT event to remote DB");
-                response = axios.put<ProcessedEvent>(
+        let responseData;
+        if (action === "edit") {
+            /** PUT event to remote DB */
+            try {
+                const response = await axios.put<ProcessedEvent>(
                     `${URL}/${event.event_id}`,
                     { ...event },
                     {
@@ -165,31 +169,33 @@ export default function Schedule() {
                         },
                     }
                 );
-            } else if (action === "create") {
-                /**POST event to remote DB */
-                // console.log("POST event to remote DB");
+                responseData = response.data; // This now holds the resolved data
+            } catch (error) {
+                console.error("Error during PUT request:", error);
+                throw error; // Rethrow or handle as needed
+            }
+        } else if (action === "create") {
+            /**POST event to remote DB */
+            try {
                 const dayStrings = [
                     event.start.getDay(),
                     event.end.getDay(),
                 ].map((dayNum) => dayOfWeekMap[dayNum]);
                 const formatTime = (date: Date): string => {
                     const hours = date.getHours().toString().padStart(2, "0");
-                    const minutes = date
-                        .getMinutes()
-                        .toString()
-                        .padStart(2, "0");
+                    const minutes = date.getMinutes().toString().padStart(2, "0");
                     return `${hours}:${minutes}`;
                 };
-
+    
                 const startTime = formatTime(event.start);
                 const endTime = formatTime(event.end);
-
-                response = axios.post<ProcessedEvent>(
+    
+                const response = await axios.post<ProcessedEvent>(
                     URL,
                     {
                         title: event.title,
-                        startTime: startTime, // Use formatted startTime // This may be the issue
-                        endTime: endTime, // Use formatted endTime // May be the iss
+                        startTime: startTime,
+                        endTime: endTime,
                         days: dayStrings,
                         professor: event.professor,
                         location: event.location,
@@ -201,22 +207,82 @@ export default function Schedule() {
                         },
                     }
                 );
+                console.log("POT response: ", response.data.data._id);
+                const courseIdentification = response.data.data._id;
+                // tie a course to current schedule TODO
+                const response2 = await axios.post(`http://localhost:8080/api/v1/schedules/${scheduleId}/courses/${courseIdentification}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                console.log("Course added to schedule: ", response2.data);
+            } catch (error) {
+                console.error("Error during POST request:", error);
+                throw error; // Rethrow or handle as needed
             }
-            res({ ...event, event_id: event.event_id });
-        });
+        }
+        // Perform further actions with responseData if needed
+        return { ...event, event_id: event.event_id }; // Adjust as needed based on actual response structure
     };
-
+    
     useEffect(() => {
         const fetchScheduleSpecificEvents = async () => {
             const schedule = await fetchScheduleWithId(scheduleId);
             setSelectedScheduleCourses(schedule.courses);
         };
+
         fetchScheduleSpecificEvents();
     }, [scheduleId]);
 
+    useEffect(() => {
+        // This should only run after selectedScheduleCourses is populated
+        if (selectedScheduleCourses.length > 0) {
+            const fetchEveryCourse = async () => {
+                const coursesObject = await fetchCoursesByIds(selectedScheduleCourses);
+                setCourses(coursesObject);
+            };
+            fetchEveryCourse();
+        }
+    }, [selectedScheduleCourses]);
 
-    // console.log("Selected Schedule Information: ", selectedScheduleCourses);
-    fetchCoursesByIds(selectedScheduleCourses);
+    useEffect(() => {
+        if (courses.length > 0) {
+            const events = courses.map((course: any) => {
+                console.log("Course!: ", course);
+                const [startHours, startMinutes] = course.data.startTime.split(":");
+                const [endHours, endMinutes] = course.data.endTime.split(":");
+
+                // Format the time with leading zeros if necessary
+                const formattedStartTime = `${parseInt(startHours)
+                    .toString()
+                    .padStart(2, "0")}:${startMinutes.padStart(2, "0")}`;
+                const formattedEndTime = `${parseInt(endHours)
+                    .toString()
+                    .padStart(2, "0")}:${endMinutes.padStart(2, "0")}`;
+                const startDate = new Date();
+                const endDate = new Date();
+
+                startDate.setHours(parseInt(formattedStartTime));
+                endDate.setHours(parseInt(formattedEndTime));
+                // Perform mapping to transform courses to another form if necessary
+                return {
+                    event_id: course.data._id,
+                    title: course.data.title,
+                    start: startDate,
+                    end: endDate,
+                    disabled: false,
+                    admin_id: [1, 2, 3, 4],
+                    // everything after this has yet to be implemented into the component
+                    days: course.data.days,
+                    professor: course.data.professor,
+                    location: course.data.location,
+                    description: course.data.description,
+                };
+            });
+            // If you need to transform and save the mapped data, update state here
+            setEvents(events);
+        }
+    }, [courses]);
 
     return (
         <div>
@@ -270,7 +336,7 @@ export default function Schedule() {
                         </div>
                     );
                 }}
-                getRemoteEvents={fetchRemote}
+                // getRemoteEvents={fetchRemote}
                 onConfirm={handleConfirm}
                 onDelete={handleDelete}
             />

@@ -42,7 +42,6 @@ exports.getSchedules = asyncHandler(async (req, res, next) => {
     const scheduleId = req.params.id;
     const schedule = await Schedule.findById({ _id: scheduleId })
     console.log("schedule: ",schedule);
-    console.log("hi")
     if (!schedule) {
       return next(
         new ErrorResponse(`schedule not found with id of ${req.params.id}`),
