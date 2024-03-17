@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import Nav from "@/components/ui/nav";
 import React from "react";
 import ReviewIcon from "@/assets/review.svg";
+import UTALogo from "@/assets/UTALogo.png";
 import { useNavigate } from "react-router-dom";
 // import Car from "@/components/ui/lp_carousel";
 
@@ -44,6 +45,20 @@ export default function LandingPage() {
           </div>
         </div>
       </div>
+      <footer
+        className="absolute bottom-0 w-full text-center py-2"
+        style={{ backgroundColor: "#241338", color: "white" }}
+      >
+        <div className="flex justify-center items-center">
+          <img
+            src={UTALogo}
+            alt="UTA Logo"
+            className="h-8 inline-block mr-16"
+          />
+          <div className="inline-block mr-16">Mavericks</div>
+          <div className="inline-block">Senior Design</div>
+        </div>
+      </footer>
     </div>
   );
 }
