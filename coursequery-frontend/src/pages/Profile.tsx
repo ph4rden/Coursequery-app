@@ -48,44 +48,47 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="absolute inset-0 -z-10 w-full h-[32%] bg-purple-700">
-      <Nav />
-      <div className="text-center text-2xl font-semibold text-white">
-        Edit Profile
+    <div className="flex flex-col min-h-screen">
+      {/* Purple section now wraps content more tightly */}
+      <div className="bg-purple-700 w-full">
+        <Nav />
+        <div className="text-center text-2xl font-semibold text-white py-4">
+          Edit Profile
+        </div>
+        <div className="flex justify-center py-10">
+          <Avatar
+            style={{
+              marginBottom: "20px",
+              width: "100px",
+              height: "100px",
+              border: "4px solid white",
+              borderRadius: "50%",
+            }}
+          >
+            <AvatarImage src="https://github.com/shadcn.png" />
+            <AvatarFallback>CN</AvatarFallback>
+          </Avatar>
+        </div>
       </div>
-      <div className="relative py-10 flex flex-col items-center justify-center">
-        <Avatar
-          style={{
-            marginBottom: "20px",
-            width: "100px",
-            height: "100px",
-            border: "4px solid white",
-            borderRadius: "50%",
-          }}
-        >
-          <AvatarImage src="https://github.com/shadcn.png" />
-          <AvatarFallback>CN</AvatarFallback>
-        </Avatar>
-        <div className="absolute top-12 right-12"></div>
 
-        {/* Main content */}
-        <div className="flex items-start justify-center w-full max-w-4xl mx-4 space-x-8"></div>
-        <div className="grid w-full max-w-sm items-center gap-1.5">
-          <Label htmlFor="email">Email</Label>
-          <Input type="email" id="email" placeholder="johnsmith@gmail.com" />
-          <div className="grid w-full max-w-sm items-center gap-1.5">
-            <Label htmlFor="password">Current Password</Label>
-            <Input type="password" id="password" placeholder="********" />
+      {/* Bottom section with white background for form */}
+      <div className="flex-grow bg-white w-full py-10 px-4">
+        <div className="w-full max-w-4xl mx-auto flex flex-wrap justify-center gap-4">
+          <div className="w-full max-w-md grid gap-4">
+            <Label htmlFor="email">Email</Label>
+            <Input type="email" id="email" placeholder="johnsmith@gmail.com" />
+
+            <Label htmlFor="current-password">Current Password</Label>
+            <Input type="password" id="current-password" placeholder="********" />
+
+            <Label htmlFor="new-password">New Password</Label>
+            <Input type="password" id="new-password" placeholder="" />
+
+            <Label htmlFor="confirm-password">Confirm Password</Label>
+            <Input type="password" id="confirm-password" placeholder="" />
+
+            <Button variant="secondary">Update</Button>
           </div>
-          <div className="grid w-full max-w-sm items-center gap-1.5">
-            <Label htmlFor="password">New Password</Label>
-            <Input type="password" id="password" placeholder="" />
-          </div>
-          <div className="grid w-full max-w-sm items-center gap-1.5">
-            <Label htmlFor="password">Confirm Password</Label>
-            <Input type="password" id="password" placeholder="" />
-          </div>
-          <Button variant="secondary">Update</Button>
         </div>
       </div>
     </div>
