@@ -245,44 +245,53 @@ export default function Schedule() {
         }
     }, [selectedScheduleCourses]);
 
+    
+
     useEffect(() => {
         if (courses.length > 0) {
-            const events = courses.map((course: any) => {
-                console.log("Course!: ", course);
+            // Helper constant function to get the next occurrence of a weekday
+            const getNextOccurrenceOfWeekday = (dayName) => {
+                const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+                const now = new Date();
+                const resultDate = new Date(now.getTime());
+                resultDate.setHours(0, 0, 0, 0); // Normalize the time to midnight
+                const dayIndex = dayNames.indexOf(dayName.toLowerCase());
+                const daysUntilNext = (dayIndex + 7 - now.getDay()) % 7 || 7; // Calculate days until next occurrence
+                resultDate.setDate(now.getDate() + daysUntilNext);
+                return resultDate;
+            };
+    
+            const events = courses.map((course) => {
                 const [startHours, startMinutes] = course.data.startTime.split(":");
                 const [endHours, endMinutes] = course.data.endTime.split(":");
-
-                // Format the time with leading zeros if necessary
-                const formattedStartTime = `${parseInt(startHours)
-                    .toString()
-                    .padStart(2, "0")}:${startMinutes.padStart(2, "0")}`;
-                const formattedEndTime = `${parseInt(endHours)
-                    .toString()
-                    .padStart(2, "0")}:${endMinutes.padStart(2, "0")}`;
-                const startDate = new Date();
-                const endDate = new Date();
-
-                startDate.setHours(parseInt(formattedStartTime));
-                endDate.setHours(parseInt(formattedEndTime));
-                // Perform mapping to transform courses to another form if necessary
+    
+                // Assuming the event occurs on the first listed day for simplicity
+                const eventDay = course.data.days[0];
+                const eventDate = getNextOccurrenceOfWeekday(eventDay);
+    
+                eventDate.setHours(parseInt(startHours), parseInt(startMinutes), 0);
+                const endDate = new Date(eventDate.getTime());
+                endDate.setHours(parseInt(endHours), parseInt(endMinutes), 0);
+    
                 return {
                     event_id: course.data._id,
                     title: course.data.title,
-                    start: startDate,
+                    start: eventDate,
                     end: endDate,
                     disabled: false,
                     admin_id: [1, 2, 3, 4],
-                    // everything after this has yet to be implemented into the component
                     days: course.data.days,
                     professor: course.data.professor,
                     location: course.data.location,
                     description: course.data.description,
                 };
             });
+    
             // If you need to transform and save the mapped data, update state here
             setEvents(events);
         }
     }, [courses]);
+    
 
     return (
         <div>
