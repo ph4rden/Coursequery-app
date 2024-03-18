@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import womenschedule from "../assets/womanschedule.svg";
 import searchIcon from "../assets/search.svg";
 import Modal from "../components/Modal";
@@ -7,6 +7,7 @@ import fakeData from "../data/db.json";
 import Schedule from "@/components/Schedule";
 import ScheduleList from "@/components/ScheduleList";
 import axios from "axios";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Schedule {
     id: number;
@@ -130,10 +131,8 @@ export default function Dashboard() {
                         </button>
                     </form>
                 </div>
-                {/* Navigation */}
                 <nav className="flex-1 overflow-auto pt-4">
                     <ul className="list-none m-0 p-0">
-                        {/* List of schedules we're gonna have to map */}
                         {
                             <ScheduleList
                                 query={searchQuery}
@@ -144,12 +143,24 @@ export default function Dashboard() {
                     </ul>
                 </nav>
             </div>
-            {/* Detail */}
-            <div className="flex-1 p-8">
-                {/* <Schedule /> */}
+            <div className="flex-1 p-8 relative">
+                {" "}
+                <Link to="/profile" className="absolute right-8 top-8">
+                    <Avatar
+                        style={{
+                            marginBottom: "20px",
+                            width: "100px",
+                            height: "100px",
+                            border: "4px solid white",
+                            borderRadius: "50%",
+                        }}
+                    >
+                        <AvatarImage src="https://github.com/shadcn.png" />
+                        <AvatarFallback>CN</AvatarFallback>
+                    </Avatar>
+                </Link>
                 <div className="flex flex-col h-full justify-center">
-                    {/* Centered message div */}
-                    <div className="text-center p-4 max-w-md mx-auto bg-gray-100 rounded-lg shadow-md">
+                    <div className="text-center text-xl p-4 max-w-md mx-auto bg-gray-100 rounded-lg shadow-md">
                         Click on a schedule to get started
                     </div>
                 </div>

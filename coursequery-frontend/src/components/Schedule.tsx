@@ -17,7 +17,7 @@ export default function Schedule() {
 
     // Function to handle back navigation
     const handleBack = () => {
-        navigate('/dashboard'); // Navigate back to the Dashboard component
+        navigate("/dashboard"); // Navigate back to the Dashboard component
     };
     // Token and URL
     const [URL, setURL] = useState<string>(
@@ -39,9 +39,7 @@ export default function Schedule() {
     const [events, setEvents] = useState<ProcessedEvent[]>([]);
 
     // course events
-    const [courses, setCourses] = useState(
-        {} as any
-    ); 
+    const [courses, setCourses] = useState({} as any);
 
     // Schedule Specific Stuff
     let { scheduleId } = useParams<{ scheduleId: string }>();
@@ -72,10 +70,10 @@ export default function Schedule() {
         const url = `http://localhost:8080/api/v1/courses/${id}`;
         try {
             const response = await axios.get(url);
-            return response.data; 
+            return response.data;
         } catch (error) {
             console.error("Error fetching course data for ID", id, error);
-            return null; 
+            return null;
         }
     };
 
@@ -85,7 +83,10 @@ export default function Schedule() {
             const coursesDataPromises = ids.map((id) => fetchCourseWithId(id));
             const coursesData = await Promise.all(coursesDataPromises);
 
-            console.log(`ALL COURSE DATA FOR SCHEDULE: ${scheduleId}: `, coursesData);
+            console.log(
+                `ALL COURSE DATA FOR SCHEDULE: ${scheduleId}: `,
+                coursesData
+            );
             return coursesData; // Return the array of fetched courses data
         } catch (error) {
             console.error("Error fetching courses data", error);
@@ -190,13 +191,16 @@ export default function Schedule() {
                 ].map((dayNum) => dayOfWeekMap[dayNum]);
                 const formatTime = (date: Date): string => {
                     const hours = date.getHours().toString().padStart(2, "0");
-                    const minutes = date.getMinutes().toString().padStart(2, "0");
+                    const minutes = date
+                        .getMinutes()
+                        .toString()
+                        .padStart(2, "0");
                     return `${hours}:${minutes}`;
                 };
-    
+
                 const startTime = formatTime(event.start);
                 const endTime = formatTime(event.end);
-    
+
                 const response = await axios.post<ProcessedEvent>(
                     URL,
                     {
@@ -217,11 +221,14 @@ export default function Schedule() {
                 console.log("POT response: ", response.data.data._id);
                 const courseIdentification = response.data.data._id;
                 // tie a course to current schedule TODO
-                const response2 = await axios.post(`http://localhost:8080/api/v1/schedules/${scheduleId}/courses/${courseIdentification}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+                const response2 = await axios.post(
+                    `http://localhost:8080/api/v1/schedules/${scheduleId}/courses/${courseIdentification}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
                 console.log("Course added to schedule: ", response2.data);
             } catch (error) {
                 console.error("Error during POST request:", error);
@@ -231,7 +238,7 @@ export default function Schedule() {
         // Perform further actions with responseData if needed
         return { ...event, event_id: event.event_id }; // Adjust as needed based on actual response structure
     };
-    
+
     useEffect(() => {
         const fetchScheduleSpecificEvents = async () => {
             const schedule = await fetchScheduleWithId(scheduleId);
@@ -245,7 +252,9 @@ export default function Schedule() {
         // This should only run after selectedScheduleCourses is populated
         if (selectedScheduleCourses.length > 0) {
             const fetchEveryCourse = async () => {
-                const coursesObject = await fetchCoursesByIds(selectedScheduleCourses);
+                const coursesObject = await fetchCoursesByIds(
+                    selectedScheduleCourses
+                );
                 setCourses(coursesObject);
             };
             fetchEveryCourse();
@@ -256,7 +265,15 @@ export default function Schedule() {
         if (courses.length > 0) {
             // Helper constant function to get the next occurrence of a weekday
             const getNextOccurrenceOfWeekday = (dayName) => {
-                const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+                const dayNames = [
+                    "sunday",
+                    "monday",
+                    "tuesday",
+                    "wednesday",
+                    "thursday",
+                    "friday",
+                    "saturday",
+                ];
                 const now = new Date();
                 const resultDate = new Date(now.getTime());
                 resultDate.setHours(0, 0, 0, 0); // Normalize the time to midnight
@@ -266,25 +283,39 @@ export default function Schedule() {
                 return resultDate;
             };
 
-            const colors = ['red', 'blue', 'green', 'purple', 'orange', 'pink', 'teal', 'gray'];
+            const colors = [
+                "red",
+                "blue",
+                "green",
+                "purple",
+                "orange",
+                "pink",
+                "teal",
+                "gray",
+            ];
 
             const getRandomColor = () => {
                 const randomIndex = Math.floor(Math.random() * colors.length);
                 return colors[randomIndex];
             };
-    
+
             const events = courses.map((course) => {
-                const [startHours, startMinutes] = course.data.startTime.split(":");
+                const [startHours, startMinutes] =
+                    course.data.startTime.split(":");
                 const [endHours, endMinutes] = course.data.endTime.split(":");
-    
+
                 // Assuming the event occurs on the first listed day for simplicity
                 const eventDay = course.data.days[0];
                 const eventDate = getNextOccurrenceOfWeekday(eventDay);
-    
-                eventDate.setHours(parseInt(startHours), parseInt(startMinutes), 0);
+
+                eventDate.setHours(
+                    parseInt(startHours),
+                    parseInt(startMinutes),
+                    0
+                );
                 const endDate = new Date(eventDate.getTime());
                 endDate.setHours(parseInt(endHours), parseInt(endMinutes), 0);
-    
+
                 return {
                     event_id: course.data._id,
                     title: course.data.title,
@@ -299,15 +330,14 @@ export default function Schedule() {
                     description: course.data.description,
                 };
             });
-    
+
             // If you need to transform and save the mapped data, update state here
             setEvents(events);
         }
     }, [courses]);
-    
 
     return (
-        <div>
+        <div className="flex flex-col justify-between h-screen">
             <Scheduler
                 events={events}
                 hourFormat="24"
@@ -362,9 +392,17 @@ export default function Schedule() {
                 onConfirm={handleConfirm}
                 onDelete={handleDelete}
             />
-            <Button variant="outline" onClick={handleBack}>
-                Back to Dashboard
-            </Button>
+            <div className="flex justify-center items-center h-32">
+                {" "}
+                {/* Adjust height as needed */}
+                <Button
+                    variant="outline"
+                    onClick={handleBack}
+                    className="text-2xl bg-cqLightPurple"
+                >
+                    Back to Dashboard
+                </Button>
+            </div>
         </div>
     );
 }
