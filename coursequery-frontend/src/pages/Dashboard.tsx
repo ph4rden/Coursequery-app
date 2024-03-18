@@ -53,11 +53,13 @@ export default function Dashboard() {
     };
     // ----------------- Modal Props -----------------
 
+
     // ----------------- ScheduleList Props -----------------
     const [fetchTrigger, setFetchTrigger] = useState(0);
     const [searchQuery, setSearchQuery] = useState("");
     const [currentUser, setCurrentUser] = useState<string>("");
     // ----------------- ScheduleList Props -----------------
+
 
     // function to get current user
     const fetchCurrentUser = async () => {
@@ -83,12 +85,41 @@ export default function Dashboard() {
     };
 
     // functions for ScheduleList: onUpdate and onDelete
-    const onUpdate = (scheduleId: string, newName: string) => {
-        console.log("Updating schedule", scheduleId, newName);
+    const onUpdate = async (scheduleId: string, newName: string) => {
+        const url = `http://localhost:8080/api/v1/schedules/${scheduleId}`;
+        try {
+            const response = await axios.put(
+                url, 
+                {
+                    name: newName,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                }
+            )
+            console.log("Schedule Updated: ", response.data);
+        } catch (error) {
+            console.log(error);
+        }
     };
 
-    const onDelete = (scheduleId: string) => {
-        console.log("Deleting schedule", scheduleId);
+    const onDelete = async (scheduleId: string) => {
+        const url = `http://localhost:8080/api/v1/schedules/${scheduleId}`;
+        try {
+            const response = await axios.delete(
+                url, 
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                }
+            )
+            console.log("Schedule Deleted: ", response);
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     useEffect(() => {
