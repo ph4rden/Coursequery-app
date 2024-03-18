@@ -43,6 +43,7 @@ export default function Schedule() {
 
     // Schedule Specific Stuff
     let { scheduleId } = useParams<{ scheduleId: string }>();
+    const [scheduleName, setScheduleName] = useState("");
     const [selectedScheduleCourses, setSelectedScheduleCourses] = useState(
         {} as any
     );
@@ -59,11 +60,12 @@ export default function Schedule() {
                 }
             );
             // console.log("Schedule Data", response.data.data);
+            setScheduleName(response.data.data.name);
             return response.data.data;
         } catch (error) {
             console.error(error);
         }
-    };
+    };  
 
     // Get course data for a single course ID, used as a help function for fetchCoursesByIds
     const fetchCourseWithId = async (id: string) => {
@@ -338,6 +340,11 @@ export default function Schedule() {
 
     return (
         <div className="flex flex-col justify-between h-screen">
+            <div>
+                <h1 className="text-4xl text-center mt-4">
+                    {scheduleName}
+                </h1>
+            </div>
             <Scheduler
                 events={events}
                 hourFormat="24"
