@@ -16,8 +16,10 @@ interface Schedule {
 
 export default function Dashboard() {
     const token = localStorage.getItem("token");
-    const [addScheduleURL, setAddScheduleURL] = useState<string>("http://localhost:8080/api/v1/schedules");
-    
+    const [addScheduleURL, setAddScheduleURL] = useState<string>(
+        "http://localhost:8080/api/v1/schedules"
+    );
+
     // ----------------- Modal Props -----------------
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [scheduleName, setScheduleName] = useState("");
@@ -26,15 +28,19 @@ export default function Dashboard() {
     };
     const handleAddSchedule = async (name: string) => {
         try {
-            const response = await axios.post(addScheduleURL, {
-                name: name
-            }, {
-                headers: {
-                    Authorization: `Bearer ${token}`
+            const response = await axios.post(
+                addScheduleURL,
+                {
+                    name: name,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
                 }
-            });
-            console.log("Schedule Added: ",response.data);
-            setFetchTrigger(prev => prev + 1);
+            );
+            console.log("Schedule Added: ", response.data);
+            setFetchTrigger((prev) => prev + 1);
         } catch (error) {
             console.log(error);
         }
@@ -45,23 +51,24 @@ export default function Dashboard() {
         setIsModalOpen(!isModalOpen);
     };
     // ----------------- Modal Props -----------------
-    
 
     // ----------------- ScheduleList Props -----------------
     const [fetchTrigger, setFetchTrigger] = useState(0);
     const [searchQuery, setSearchQuery] = useState("");
     const [currentUser, setCurrentUser] = useState<string>("");
     // ----------------- ScheduleList Props -----------------
-    
 
-    // function to get current user 
-     const fetchCurrentUser = async () => {
+    // function to get current user
+    const fetchCurrentUser = async () => {
         try {
-            const response = await axios.get("http://localhost:8080/api/v1/auth/me", {
-                headers: {
-                    Authorization: `Bearer ${token}`
+            const response = await axios.get(
+                "http://localhost:8080/api/v1/auth/me",
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
                 }
-            });
+            );
             setCurrentUser(response.data.data._id);
             // console.log("Current User:", currentUser)
         } catch (error) {
@@ -127,13 +134,25 @@ export default function Dashboard() {
                 <nav className="flex-1 overflow-auto pt-4">
                     <ul className="list-none m-0 p-0">
                         {/* List of schedules we're gonna have to map */}
-                        {<ScheduleList query={searchQuery} currentUser={currentUser} fetchTrigger={fetchTrigger}/>}
+                        {
+                            <ScheduleList
+                                query={searchQuery}
+                                currentUser={currentUser}
+                                fetchTrigger={fetchTrigger}
+                            />
+                        }
                     </ul>
                 </nav>
             </div>
             {/* Detail */}
             <div className="flex-1 p-8">
                 {/* <Schedule /> */}
+                <div className="flex flex-col h-full justify-center">
+                    {/* Centered message div */}
+                    <div className="text-center p-4 max-w-md mx-auto bg-gray-100 rounded-lg shadow-md">
+                        Click on a schedule to get started
+                    </div>
+                </div>
                 <Modal
                     isOpen={isModalOpen}
                     onClose={toggleModal}

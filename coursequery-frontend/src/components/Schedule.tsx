@@ -1,6 +1,6 @@
 import { Scheduler } from "@aldabil/react-scheduler";
 import { useState, useEffect, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
     EventActions,
     ProcessedEvent,
@@ -10,8 +10,15 @@ import {
 import axios from "axios";
 import { start } from "repl";
 import { set } from "date-fns";
+import { Button } from "../components/ui/button";
 
 export default function Schedule() {
+    const navigate = useNavigate(); // Initialize useNavigate hook
+
+    // Function to handle back navigation
+    const handleBack = () => {
+        navigate('/dashboard'); // Navigate back to the Dashboard component
+    };
     // Token and URL
     const [URL, setURL] = useState<string>(
         "http://localhost:8080/api/v1/courses"
@@ -245,8 +252,6 @@ export default function Schedule() {
         }
     }, [selectedScheduleCourses]);
 
-    
-
     useEffect(() => {
         if (courses.length > 0) {
             // Helper constant function to get the next occurrence of a weekday
@@ -259,6 +264,13 @@ export default function Schedule() {
                 const daysUntilNext = (dayIndex + 7 - now.getDay()) % 7 || 7; // Calculate days until next occurrence
                 resultDate.setDate(now.getDate() + daysUntilNext);
                 return resultDate;
+            };
+
+            const colors = ['red', 'blue', 'green', 'purple', 'orange', 'pink', 'teal', 'gray'];
+
+            const getRandomColor = () => {
+                const randomIndex = Math.floor(Math.random() * colors.length);
+                return colors[randomIndex];
             };
     
             const events = courses.map((course) => {
@@ -276,6 +288,7 @@ export default function Schedule() {
                 return {
                     event_id: course.data._id,
                     title: course.data.title,
+                    color: getRandomColor(),
                     start: eventDate,
                     end: endDate,
                     disabled: false,
@@ -349,6 +362,9 @@ export default function Schedule() {
                 onConfirm={handleConfirm}
                 onDelete={handleDelete}
             />
+            <Button variant="outline" onClick={handleBack}>
+                Back to Dashboard
+            </Button>
         </div>
     );
 }
