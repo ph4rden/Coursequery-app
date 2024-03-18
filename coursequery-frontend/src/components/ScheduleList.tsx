@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
+import { set } from "date-fns";
 interface Schedule {
     id: number;
     title: string;
@@ -42,58 +43,26 @@ export default function ScheduleList({
     onUpdate,
     onDelete,
 }: ScheduleListProps) {
-    // const data: Data = fakeData as Data;
+    const [updateTrigger, setUpdateTrigger] = useState(0); // Local state to trigger re-fetching
+    // Update the local trigger to re-fetch schedules
+    const triggerReFetch = () => {
+        setUpdateTrigger(prev => prev + 1);
+    };
     const [scheduleData, setScheduleData] = useState([]);
-    const [schedules, setSchedules] = useState<Schedule[]>([]);
-    const [URL, setURL] = useState<string>(
-        `http://localhost:8080/api/v1/schedules/${currentUser}`
-    );
     const token = localStorage.getItem("token");
-
-    // bring props up to parent and use modal to fetch trigger? to do 3/11/2024
-    useEffect(() => {
-        const fetchSchedules = async () => {
-            if (currentUser) {
-                const url = `http://localhost:8080/api/v1/schedules/user/${currentUser}`;
-                try {
-                    const response = await axios.get(url, {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    });
-                    const data = response.data.data;
-                    console.log("Schedule Data", data);
-                    setScheduleData(data);
-                } catch (error) {
-                    console.error(error);
-                }
-            }
-        };
-
-        fetchSchedules();
-    }, [currentUser, fetchTrigger]);
-
+    
     // Filter schedules based on query
     const filteredSchedules = scheduleData.filter((schedule) =>
-        schedule.name.toLowerCase().includes(query.toLowerCase())
+    schedule.name.toLowerCase().includes(query.toLowerCase())
     );
-
+    
+    
     const [editScheduleId, setEditScheduleId] = useState<string | null>(null);
     const [deleteScheduleId, setDeleteScheduleId] = useState<string | null>(
         null
     );
     const [newName, setNewName] = useState<string>("");
 
-    const handleUpdate = (scheduleId: string) => {
-        onUpdate(scheduleId, newName); // Invoke the passed onUpdate function
-        setEditScheduleId(null); // Close popover
-        setNewName(""); // Reset newName
-    };
-
-    const handleDelete = (scheduleId: string) => {
-        onDelete(scheduleId); // Invoke the passed onDelete function
-        setDeleteScheduleId(null); // Close dialog
-    };
 
     const scheduleList = filteredSchedules.map((schedule) => (
         <li
@@ -196,6 +165,43 @@ export default function ScheduleList({
             </div>
         </li>
     ));
+
+
+    const handleUpdate = async (scheduleId: string) => {
+        await onUpdate(scheduleId, newName); // Invoke the passed onUpdate function
+        setEditScheduleId(null); // Close popover
+        setNewName(""); // Reset newName
+        triggerReFetch(); // Trigger re-fetching of schedules
+    };
+
+    const handleDelete = async (scheduleId: string) => {
+        await onDelete(scheduleId); // Invoke the passed onDelete function
+        setDeleteScheduleId(null); // Close dialog
+        triggerReFetch(); // Trigger re-fetching of schedules
+    };
+
+    // bring props up to parent and use modal to fetch trigger? to do 3/11/2024
+    useEffect(() => {
+        const fetchSchedules = async () => {
+            if (currentUser) {
+                const url = `http://localhost:8080/api/v1/schedules/user/${currentUser}`;
+                try {
+                    const response = await axios.get(url, {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    });
+                    const data = response.data.data;
+                    console.log("Schedule Data", data);
+                    setScheduleData(data);
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        };
+
+        fetchSchedules();
+    }, [currentUser, fetchTrigger, updateTrigger, token]);
 
     return <div>{scheduleList}</div>;
 }
