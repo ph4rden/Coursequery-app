@@ -82,6 +82,15 @@ export default function Dashboard() {
         setSearchQuery(e.target.value);
     };
 
+    // functions for ScheduleList: onUpdate and onDelete
+    const onUpdate = (scheduleId: string, newName: string) => {
+        console.log("Updating schedule", scheduleId, newName);
+    };
+
+    const onDelete = (scheduleId: string) => {
+        console.log("Deleting schedule", scheduleId);
+    }
+
     useEffect(() => {
         fetchCurrentUser();
     }, []);
@@ -138,6 +147,8 @@ export default function Dashboard() {
                                 query={searchQuery}
                                 currentUser={currentUser}
                                 fetchTrigger={fetchTrigger}
+                                onUpdate={onUpdate}
+                                onDelete={onDelete}
                             />
                         }
                     </ul>
@@ -161,7 +172,7 @@ export default function Dashboard() {
                 </Link>
                 <div className="flex flex-col h-full justify-center">
                     <div className="text-center text-xl p-4 max-w-md mx-auto bg-gray-100 rounded-lg shadow-md">
-                        Click on a schedule to get started
+                        Click on a schedule or create one to get started
                     </div>
                 </div>
                 <Modal
