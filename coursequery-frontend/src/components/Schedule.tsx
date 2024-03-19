@@ -133,6 +133,8 @@ export default function Schedule() {
                     // everything after this has yet to be implemented into the component
                     days: event.days,
                     professor: event.professor,
+                    department: event.department,
+                    coursenumber: event.coursenumber,
                     location: event.location,
                     description: event.description,
                 };
@@ -211,6 +213,8 @@ export default function Schedule() {
                         endTime: endTime,
                         days: dayStrings,
                         professor: event.professor,
+                        department: event.department,
+                        coursenumber: event.coursenumber,
                         location: event.location,
                         description: event.description,
                     },
@@ -220,9 +224,7 @@ export default function Schedule() {
                         },
                     }
                 );
-                console.log("POT response: ", response.data.data._id);
                 const courseIdentification = response.data.data._id;
-                // tie a course to current schedule TODO
                 const response2 = await axios.post(
                     `http://localhost:8080/api/v1/schedules/${scheduleId}/courses/${courseIdentification}`,
                     {
@@ -234,7 +236,7 @@ export default function Schedule() {
                 console.log("Course added to schedule: ", response2.data);
             } catch (error) {
                 console.error("Error during POST request:", error);
-                throw error; // Rethrow or handle as needed
+                throw error;
             }
         }
         // Perform further actions with responseData if needed
@@ -328,6 +330,8 @@ export default function Schedule() {
                     admin_id: [1, 2, 3, 4],
                     days: course.data.days,
                     professor: course.data.professor,
+                    department: course.data.department,
+                    coursenumber: course.data.coursenumber,
                     location: course.data.location,
                     description: course.data.description,
                 };
@@ -364,7 +368,25 @@ export default function Schedule() {
                         name: "professor",
                         type: "input",
                         config: {
-                            label: "Professor",
+                            label: "Professor Name",
+                            multiline: true,
+                            rows: 1,
+                        },
+                    },
+                    {
+                        name: "department",
+                        type: "input",
+                        config: {
+                            label: "Department",
+                            multiline: true,
+                            rows: 1,
+                        },
+                    },
+                    {
+                        name: "coursenumber",
+                        type: "input",
+                        config: {
+                            label: "Course Number",
                             multiline: true,
                             rows: 1,
                         },
@@ -388,6 +410,8 @@ export default function Schedule() {
                     return (
                         <div>
                             <p>Professor: {event.professor || "Nothing..."}</p>
+                            <p>Department: {event.department || "Nothing..."}</p>
+                            <p>Course Number: {event.coursenumber || "Nothing..."}</p>
                             <p>Location: {event.location || "Nothing..."}</p>
                             <p>
                                 Description: {event.description || "Nothing..."}
