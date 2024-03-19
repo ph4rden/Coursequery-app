@@ -23,6 +23,8 @@ const CourseSchema = new mongoose.Schema({
     },
     slug: String,
     professor: String,
+    department: String,
+    coursenumber: String,
     location: String,
     description: String,
     user: {
