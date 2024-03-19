@@ -11,6 +11,7 @@ import axios from "axios";
 import { start } from "repl";
 import { set } from "date-fns";
 import { Button } from "../components/ui/button";
+import { get } from "http";
 
 export default function Schedule() {
     const navigate = useNavigate(); // Initialize useNavigate hook
@@ -65,7 +66,7 @@ export default function Schedule() {
         } catch (error) {
             console.error(error);
         }
-    };  
+    };
 
     // Get course data for a single course ID, used as a help function for fetchCoursesByIds
     const fetchCourseWithId = async (id: string) => {
@@ -243,6 +244,107 @@ export default function Schedule() {
         return { ...event, event_id: event.event_id }; // Adjust as needed based on actual response structure
     };
 
+    // ! Work in progress
+    const ratemyprofessorscraperURL = "http://127.0.0.1:5000/get_professors";
+    const wikiscraperURL = "http://127.0.0.1:5000/wiki_scrape";
+
+    const findProfessorRMP = async (professor) => {
+        const enrichedCourses = await axios.post(
+            ratemyprofessorscraperURL,
+            {
+                "ProfessorName": professor,
+            }
+        )
+        return enrichedCourses;
+    };
+
+    async function getProfessorData(professorName: string) {
+        try {
+          const data = await findProfessorRMP(professorName);
+          return data.data;
+        } catch (error) {
+          console.error("Error fetching RMP data:", error);
+        }
+      }
+
+      async function updateEventsWithScrapedData(courses) {
+        // Transform each course into a Promise of an updated event
+        const eventPromises = courses.map(course => {
+            const [startHours, startMinutes] = course.data.startTime.split(":");
+            const [endHours, endMinutes] = course.data.endTime.split(":");
+            const eventDay = course.data.days[0]; // First listed day
+            const eventDate = getNextOccurrenceOfWeekday(eventDay);
+    
+            eventDate.setHours(parseInt(startHours), parseInt(startMinutes), 0);
+            const endDate = new Date(eventDate.getTime());
+            endDate.setHours(parseInt(endHours), parseInt(endMinutes), 0);
+    
+            // Return a Promise that resolves to the updated event object
+            return getProfessorData(course.data.professor).then(scrapedData => {
+                // scrapedData.department 
+                const updatedDescription = `Scrape Info: ${JSON.stringify(scrapedData)}`;
+                return {
+                    event_id: course.data._id,
+                    title: course.data.title,
+                    color: getRandomColor(),
+                    start: eventDate,
+                    end: endDate,
+                    disabled: false,
+                    admin_id: [1, 2, 3, 4],
+                    days: course.data.days,
+                    professor: course.data.professor,
+                    department: course.data.department,
+                    coursenumber: course.data.coursenumber,
+                    location: course.data.location,
+                    description: updatedDescription,
+                };
+            });
+        });
+    
+        // Wait for all Promises to resolve and then set the new events
+        Promise.all(eventPromises).then(updatedEvents => {
+            // Assuming setEvents is the method you use to update your events state
+            setEvents(updatedEvents);
+        }).catch(error => {
+            console.error("Error updating events with scraped data:", error);
+        });
+    }
+
+    const getNextOccurrenceOfWeekday = (dayName) => {
+        const dayNames = [
+            "sunday",
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+        ];
+        const now = new Date();
+        const resultDate = new Date(now.getTime());
+        resultDate.setHours(0, 0, 0, 0); // Normalize the time to midnight
+        const dayIndex = dayNames.indexOf(dayName.toLowerCase());
+        const daysUntilNext = (dayIndex + 7 - now.getDay()) % 7 || 7; // Calculate days until next occurrence
+        resultDate.setDate(now.getDate() + daysUntilNext);
+        return resultDate;
+    };
+
+    const colors = [
+        "red",
+        "blue",
+        "green",
+        "purple",
+        "orange",
+        "pink",
+        "teal",
+        "gray",
+    ];
+
+    const getRandomColor = () => {
+        const randomIndex = Math.floor(Math.random() * colors.length);
+        return colors[randomIndex];
+    };
+
     useEffect(() => {
         const fetchScheduleSpecificEvents = async () => {
             const schedule = await fetchScheduleWithId(scheduleId);
@@ -266,88 +368,15 @@ export default function Schedule() {
     }, [selectedScheduleCourses]);
 
     useEffect(() => {
-        if (courses.length > 0) {
-            // Helper constant function to get the next occurrence of a weekday
-            const getNextOccurrenceOfWeekday = (dayName) => {
-                const dayNames = [
-                    "sunday",
-                    "monday",
-                    "tuesday",
-                    "wednesday",
-                    "thursday",
-                    "friday",
-                    "saturday",
-                ];
-                const now = new Date();
-                const resultDate = new Date(now.getTime());
-                resultDate.setHours(0, 0, 0, 0); // Normalize the time to midnight
-                const dayIndex = dayNames.indexOf(dayName.toLowerCase());
-                const daysUntilNext = (dayIndex + 7 - now.getDay()) % 7 || 7; // Calculate days until next occurrence
-                resultDate.setDate(now.getDate() + daysUntilNext);
-                return resultDate;
-            };
-
-            const colors = [
-                "red",
-                "blue",
-                "green",
-                "purple",
-                "orange",
-                "pink",
-                "teal",
-                "gray",
-            ];
-
-            const getRandomColor = () => {
-                const randomIndex = Math.floor(Math.random() * colors.length);
-                return colors[randomIndex];
-            };
-
-            const events = courses.map((course) => {
-                const [startHours, startMinutes] =
-                    course.data.startTime.split(":");
-                const [endHours, endMinutes] = course.data.endTime.split(":");
-
-                // Assuming the event occurs on the first listed day for simplicity
-                const eventDay = course.data.days[0];
-                const eventDate = getNextOccurrenceOfWeekday(eventDay);
-
-                eventDate.setHours(
-                    parseInt(startHours),
-                    parseInt(startMinutes),
-                    0
-                );
-                const endDate = new Date(eventDate.getTime());
-                endDate.setHours(parseInt(endHours), parseInt(endMinutes), 0);
-
-                return {
-                    event_id: course.data._id,
-                    title: course.data.title,
-                    color: getRandomColor(),
-                    start: eventDate,
-                    end: endDate,
-                    disabled: false,
-                    admin_id: [1, 2, 3, 4],
-                    days: course.data.days,
-                    professor: course.data.professor,
-                    department: course.data.department,
-                    coursenumber: course.data.coursenumber,
-                    location: course.data.location,
-                    description: course.data.description,
-                };
-            });
-
-            // If you need to transform and save the mapped data, update state here
-            setEvents(events);
+        if (courses.length > 0) { 
+            updateEventsWithScrapedData(courses);
         }
     }, [courses]);
 
     return (
         <div className="flex flex-col justify-between h-screen">
             <div>
-                <h1 className="text-4xl text-center mt-4">
-                    {scheduleName}
-                </h1>
+                <h1 className="text-4xl text-center mt-4">{scheduleName}</h1>
             </div>
             <Scheduler
                 events={events}
@@ -368,7 +397,7 @@ export default function Schedule() {
                         name: "professor",
                         type: "input",
                         config: {
-                            label: "Professor Name",
+                            label: "Professor Name (e.g. Chris Conly)",
                             multiline: true,
                             rows: 1,
                         },
@@ -377,7 +406,7 @@ export default function Schedule() {
                         name: "department",
                         type: "input",
                         config: {
-                            label: "Department",
+                            label: "Department (e.g. CSE)",
                             multiline: true,
                             rows: 1,
                         },
@@ -386,7 +415,7 @@ export default function Schedule() {
                         name: "coursenumber",
                         type: "input",
                         config: {
-                            label: "Course Number",
+                            label: "Course Number (e.g. 1105)",
                             multiline: true,
                             rows: 1,
                         },
@@ -394,27 +423,54 @@ export default function Schedule() {
                     {
                         name: "location",
                         type: "input",
-                        config: { label: "Location", multiline: true, rows: 1 },
-                    },
-                    {
-                        name: "description",
-                        type: "input",
                         config: {
-                            label: "Description",
+                            label: "Location (e.g ERB)",
                             multiline: true,
                             rows: 1,
                         },
                     },
+                    // {
+                    //     name: "description",
+                    //     type: "input",
+                    //     config: {
+                    //         label: "Description",
+                    //         multiline: true,
+                    //         rows: 1,
+                    //     },
+                    // },
                 ]}
                 viewerExtraComponent={(fields, event) => {
                     return (
-                        <div>
-                            <p>Professor: {event.professor || "Nothing..."}</p>
-                            <p>Department: {event.department || "Nothing..."}</p>
-                            <p>Course Number: {event.coursenumber || "Nothing..."}</p>
-                            <p>Location: {event.location || "Nothing..."}</p>
-                            <p>
-                                Description: {event.description || "Nothing..."}
+                        <div className="rounded-lg p-4 max-w-md mx-auto">
+                            <p className="text-lg font-semibold">
+                                Professor:{" "}
+                                <span className="font-normal">
+                                    {event.professor || ""}
+                                </span>
+                            </p>
+                            <p className="text-lg font-semibold">
+                                Department:{" "}
+                                <span className="font-normal">
+                                    {event.department || ""}
+                                </span>
+                            </p>
+                            <p className="text-lg font-semibold">
+                                Course Number:{" "}
+                                <span className="font-normal">
+                                    {event.coursenumber || ""}
+                                </span>
+                            </p>
+                            <p className="text-lg font-semibold">
+                                Location:{" "}
+                                <span className="font-normal">
+                                    {event.location || ""}
+                                </span>
+                            </p>
+                            <p className="text-lg font-semibold">
+                                Description:{" "}
+                                <span className="font-normal">
+                                    {event.description || ""}
+                                </span>
                             </p>
                         </div>
                     );
