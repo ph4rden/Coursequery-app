@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import womenschedule from "../assets/womanschedule.svg";
 import searchIcon from "../assets/search.svg";
 import Modal from "../components/Modal";
@@ -7,6 +7,7 @@ import fakeData from "../data/db.json";
 import Schedule from "@/components/Schedule";
 import ScheduleList from "@/components/ScheduleList";
 import axios from "axios";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Schedule {
     id: number;
@@ -16,8 +17,10 @@ interface Schedule {
 
 export default function Dashboard() {
     const token = localStorage.getItem("token");
-    const [addScheduleURL, setAddScheduleURL] = useState<string>("http://localhost:8080/api/v1/schedules");
-    
+    const [addScheduleURL, setAddScheduleURL] = useState<string>(
+        "http://localhost:8080/api/v1/schedules"
+    );
+
     // ----------------- Modal Props -----------------
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [scheduleName, setScheduleName] = useState("");
@@ -26,15 +29,19 @@ export default function Dashboard() {
     };
     const handleAddSchedule = async (name: string) => {
         try {
-            const response = await axios.post(addScheduleURL, {
-                name: name
-            }, {
-                headers: {
-                    Authorization: `Bearer ${token}`
+            const response = await axios.post(
+                addScheduleURL,
+                {
+                    name: name,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
                 }
-            });
-            console.log("Schedule Added: ",response.data);
-            setFetchTrigger(prev => prev + 1);
+            );
+            console.log("Schedule Added: ", response.data);
+            setFetchTrigger((prev) => prev + 1);
         } catch (error) {
             console.log(error);
         }
@@ -45,23 +52,26 @@ export default function Dashboard() {
         setIsModalOpen(!isModalOpen);
     };
     // ----------------- Modal Props -----------------
-    
+
 
     // ----------------- ScheduleList Props -----------------
     const [fetchTrigger, setFetchTrigger] = useState(0);
     const [searchQuery, setSearchQuery] = useState("");
     const [currentUser, setCurrentUser] = useState<string>("");
     // ----------------- ScheduleList Props -----------------
-    
 
-    // function to get current user 
-     const fetchCurrentUser = async () => {
+
+    // function to get current user
+    const fetchCurrentUser = async () => {
         try {
-            const response = await axios.get("http://localhost:8080/api/v1/auth/me", {
-                headers: {
-                    Authorization: `Bearer ${token}`
+            const response = await axios.get(
+                "http://localhost:8080/api/v1/auth/me",
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
                 }
-            });
+            );
             setCurrentUser(response.data.data._id);
             // console.log("Current User:", currentUser)
         } catch (error) {
@@ -73,6 +83,44 @@ export default function Dashboard() {
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
     };
+
+    // functions for ScheduleList: onUpdate and onDelete
+    const onUpdate = async (scheduleId: string, newName: string) => {
+        const url = `http://localhost:8080/api/v1/schedules/${scheduleId}`;
+        try {
+            const response = await axios.put(
+                url, 
+                {
+                    name: newName,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                }
+            )
+            console.log("Schedule Updated: ", response.data);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const onDelete = async (scheduleId: string) => {
+        const url = `http://localhost:8080/api/v1/schedules/${scheduleId}`;
+        try {
+            const response = await axios.delete(
+                url, 
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                }
+            )
+            console.log("Schedule Deleted: ", response);
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     useEffect(() => {
         fetchCurrentUser();
@@ -123,17 +171,41 @@ export default function Dashboard() {
                         </button>
                     </form>
                 </div>
-                {/* Navigation */}
                 <nav className="flex-1 overflow-auto pt-4">
                     <ul className="list-none m-0 p-0">
-                        {/* List of schedules we're gonna have to map */}
-                        {<ScheduleList query={searchQuery} currentUser={currentUser} fetchTrigger={fetchTrigger}/>}
+                        {
+                            <ScheduleList
+                                query={searchQuery}
+                                currentUser={currentUser}
+                                fetchTrigger={fetchTrigger}
+                                onUpdate={onUpdate}
+                                onDelete={onDelete}
+                            />
+                        }
                     </ul>
                 </nav>
             </div>
-            {/* Detail */}
-            <div className="flex-1 p-8">
-                {/* <Schedule /> */}
+            <div className="flex-1 p-8 relative">
+                {" "}
+                <Link to="/profile" className="absolute right-8 top-8">
+                    <Avatar
+                        style={{
+                            marginBottom: "20px",
+                            width: "100px",
+                            height: "100px",
+                            border: "4px solid white",
+                            borderRadius: "50%",
+                        }}
+                    >
+                        <AvatarImage src="https://github.com/shadcn.png" />
+                        <AvatarFallback>CN</AvatarFallback>
+                    </Avatar>
+                </Link>
+                <div className="flex flex-col h-full justify-center">
+                    <div className="text-center text-xl p-4 max-w-md mx-auto bg-gray-100 rounded-lg shadow-md">
+                        Click on a schedule or create one to get started
+                    </div>
+                </div>
                 <Modal
                     isOpen={isModalOpen}
                     onClose={toggleModal}
