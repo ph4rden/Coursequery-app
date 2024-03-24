@@ -258,6 +258,17 @@ export default function Schedule() {
         return enrichedCourses;
     };
 
+    const findClassWiki = async (department, courseNumber) => {
+        const enrichedCourses = await axios.post(
+            wikiscraperURL, 
+            {
+                "section": department,
+                "number": courseNumber
+            }
+        );
+        return enrichedCourses;
+    }
+
     async function getProfessorData(professorName: string) {
         try {
           const data = await findProfessorRMP(professorName);
@@ -267,22 +278,37 @@ export default function Schedule() {
         }
       }
 
-      async function updateEventsWithScrapedData(courses) {
-        // Transform each course into a Promise of an updated event
-        const eventPromises = courses.map(course => {
+    async function getClassData(department: string, courseNumber: string) {
+        try {
+          const data = await findClassWiki(department, courseNumber);
+          return data.data;
+        } catch (error) {
+          console.error("Error fetching class data:", error);
+        }
+    }
+
+    async function updateEventsWithScrapedData(courses) {
+        const eventPromises = courses.map(async (course) => {
             const [startHours, startMinutes] = course.data.startTime.split(":");
             const [endHours, endMinutes] = course.data.endTime.split(":");
             const eventDay = course.data.days[0]; // First listed day
             const eventDate = getNextOccurrenceOfWeekday(eventDay);
     
-            eventDate.setHours(parseInt(startHours), parseInt(startMinutes), 0);
+            eventDate.setHours(parseInt(startHours, 10), parseInt(startMinutes, 10), 0);
             const endDate = new Date(eventDate.getTime());
-            endDate.setHours(parseInt(endHours), parseInt(endMinutes), 0);
+            endDate.setHours(parseInt(endHours, 10), parseInt(endMinutes, 10), 0);
     
-            // Return a Promise that resolves to the updated event object
-            return getProfessorData(course.data.professor).then(scrapedData => {
-                // scrapedData.department 
-                const updatedDescription = `Scrape Info: ${JSON.stringify(scrapedData)}`;
+            try {
+                // Concurrently fetch data from both sources
+                const professorDataPromise = getProfessorData(course.data.professor);
+                const classDataPromise = getClassData(course.data.department, course.data.coursenumber);
+                
+                // Wait for both promises to resolve
+                const [professorData, classData] = await Promise.all([professorDataPromise, classDataPromise]);
+                
+                // Combine the scraped data into the description or other fields as needed
+                const updatedDescription = `Professor Info: ${JSON.stringify(professorData)}, Class Info: ${JSON.stringify(classData)}`;
+                
                 return {
                     event_id: course.data._id,
                     title: course.data.title,
@@ -298,15 +324,21 @@ export default function Schedule() {
                     location: course.data.location,
                     description: updatedDescription,
                 };
-            });
+            } catch (error) {
+                console.error("Error updating event with scraped data:", error);
+                // Handle the error appropriately, possibly by returning a modified object indicating the error
+                return {
+                    ...course,
+                    description: `${course.data.description}. Error fetching additional information.`,
+                };
+            }
         });
     
         // Wait for all Promises to resolve and then set the new events
         Promise.all(eventPromises).then(updatedEvents => {
-            // Assuming setEvents is the method you use to update your events state
             setEvents(updatedEvents);
         }).catch(error => {
-            console.error("Error updating events with scraped data:", error);
+            console.error("Error in updating events with scraped data:", error);
         });
     }
 
@@ -429,15 +461,6 @@ export default function Schedule() {
                             rows: 1,
                         },
                     },
-                    // {
-                    //     name: "description",
-                    //     type: "input",
-                    //     config: {
-                    //         label: "Description",
-                    //         multiline: true,
-                    //         rows: 1,
-                    //     },
-                    // },
                 ]}
                 viewerExtraComponent={(fields, event) => {
                     return (
