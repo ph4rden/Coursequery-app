@@ -12,6 +12,7 @@ import { start } from "repl";
 import { set } from "date-fns";
 import { Button } from "../components/ui/button";
 import { get } from "http";
+import { Icon } from "../components/Icon";
 
 export default function Schedule() {
     const navigate = useNavigate(); // Initialize useNavigate hook
@@ -244,71 +245,85 @@ export default function Schedule() {
         return { ...event, event_id: event.event_id }; // Adjust as needed based on actual response structure
     };
 
-    // ! Work in progress
+    // Scrapers
+    const [isLoading, setIsLoading] = useState(false);
     const ratemyprofessorscraperURL = "http://127.0.0.1:5000/get_professors";
     const wikiscraperURL = "http://127.0.0.1:5000/wiki_scrape";
 
     const findProfessorRMP = async (professor) => {
-        const enrichedCourses = await axios.post(
-            ratemyprofessorscraperURL,
-            {
-                "ProfessorName": professor,
-            }
-        )
+        const enrichedCourses = await axios.post(ratemyprofessorscraperURL, {
+            ProfessorName: professor,
+        });
         return enrichedCourses;
     };
 
     const findClassWiki = async (department, courseNumber) => {
-        const enrichedCourses = await axios.post(
-            wikiscraperURL, 
-            {
-                "section": department,
-                "number": courseNumber
-            }
-        );
+        const enrichedCourses = await axios.post(wikiscraperURL, {
+            section: department,
+            number: courseNumber,
+        });
         return enrichedCourses;
-    }
+    };
 
     async function getProfessorData(professorName: string) {
         try {
-          const data = await findProfessorRMP(professorName);
-          return data.data;
+            const data = await findProfessorRMP(professorName);
+            return data.data;
         } catch (error) {
-          console.error("Error fetching RMP data:", error);
+            console.error("Error fetching RMP data:", error);
         }
-      }
+    }
 
     async function getClassData(department: string, courseNumber: string) {
         try {
-          const data = await findClassWiki(department, courseNumber);
-          return data.data;
+            const data = await findClassWiki(department, courseNumber);
+            return data.data;
         } catch (error) {
-          console.error("Error fetching class data:", error);
+            console.error("Error fetching class data:", error);
         }
     }
 
     async function updateEventsWithScrapedData(courses) {
+        setIsLoading(true);
         const eventPromises = courses.map(async (course) => {
             const [startHours, startMinutes] = course.data.startTime.split(":");
             const [endHours, endMinutes] = course.data.endTime.split(":");
             const eventDay = course.data.days[0]; // First listed day
             const eventDate = getNextOccurrenceOfWeekday(eventDay);
-    
-            eventDate.setHours(parseInt(startHours, 10), parseInt(startMinutes, 10), 0);
+
+            eventDate.setHours(
+                parseInt(startHours, 10),
+                parseInt(startMinutes, 10),
+                0
+            );
             const endDate = new Date(eventDate.getTime());
-            endDate.setHours(parseInt(endHours, 10), parseInt(endMinutes, 10), 0);
-    
+            endDate.setHours(
+                parseInt(endHours, 10),
+                parseInt(endMinutes, 10),
+                0
+            );
+
             try {
                 // Concurrently fetch data from both sources
-                const professorDataPromise = getProfessorData(course.data.professor);
-                const classDataPromise = getClassData(course.data.department, course.data.coursenumber);
-                
+                const professorDataPromise = getProfessorData(
+                    course.data.professor
+                );
+                const classDataPromise = getClassData(
+                    course.data.department,
+                    course.data.coursenumber
+                );
+
                 // Wait for both promises to resolve
-                const [professorData, classData] = await Promise.all([professorDataPromise, classDataPromise]);
-                
+                const [professorData, classData] = await Promise.all([
+                    professorDataPromise,
+                    classDataPromise,
+                ]);
+
                 // Combine the scraped data into the description or other fields as needed
-                const updatedDescription = `Professor Info: ${JSON.stringify(professorData)}, Class Info: ${JSON.stringify(classData)}`;
-                
+                const updatedDescription = `Professor Info: ${JSON.stringify(
+                    professorData
+                )}, Class Info: ${JSON.stringify(classData)}`;
+
                 return {
                     event_id: course.data._id,
                     title: course.data.title,
@@ -331,15 +346,21 @@ export default function Schedule() {
                     ...course,
                     description: `${course.data.description}. Error fetching additional information.`,
                 };
-            }
+            } 
         });
-    
+
         // Wait for all Promises to resolve and then set the new events
-        Promise.all(eventPromises).then(updatedEvents => {
-            setEvents(updatedEvents);
-        }).catch(error => {
-            console.error("Error in updating events with scraped data:", error);
-        });
+        Promise.all(eventPromises)
+            .then((updatedEvents) => {
+                setEvents(updatedEvents);
+                setIsLoading(false);
+            })
+            .catch((error) => {
+                console.error(
+                    "Error in updating events with scraped data:",
+                    error
+                );
+            });
     }
 
     const getNextOccurrenceOfWeekday = (dayName) => {
@@ -400,13 +421,19 @@ export default function Schedule() {
     }, [selectedScheduleCourses]);
 
     useEffect(() => {
-        if (courses.length > 0) { 
+        if (courses.length > 0) {
             updateEventsWithScrapedData(courses);
         }
     }, [courses]);
 
     return (
         <div className="flex flex-col justify-between h-screen">
+            {isLoading && (
+                <div className="fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center bg-black bg-opacity-50 z-[100]">
+                    {/* Spinner Icon from Lucide with Tailwind's animate-spin */}
+                    <Icon.spinner className="h-8 w-8 animate-spin" />
+                </div>
+            )}
             <div>
                 <h1 className="text-4xl text-center mt-4">{scheduleName}</h1>
             </div>
