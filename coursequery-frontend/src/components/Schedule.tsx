@@ -305,24 +305,14 @@ export default function Schedule() {
 
             try {
                 // Concurrently fetch data from both sources
-                const professorDataPromise = getProfessorData(
-                    course.data.professor
-                );
-                const classDataPromise = getClassData(
-                    course.data.department,
-                    course.data.coursenumber
-                );
-
+                const professorDataPromise = getProfessorData(course.data.professor);
+                const classDataPromise = getClassData(course.data.department, course.data.coursenumber);
+                
                 // Wait for both promises to resolve
-                const [professorData, classData] = await Promise.all([
-                    professorDataPromise,
-                    classDataPromise,
-                ]);
-
+                const [professorData, classData] = await Promise.all([professorDataPromise, classDataPromise]);
+                
                 // Combine the scraped data into the description or other fields as needed
-                const updatedDescription = `Professor Info: ${JSON.stringify(
-                    professorData
-                )}, Class Info: ${JSON.stringify(classData)}`;
+                const updatedDescription = `Professor Info: ${JSON.stringify(professorData)}, Class Info: ${JSON.stringify(classData)}`;
 
                 return {
                     event_id: course.data._id,
