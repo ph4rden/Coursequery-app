@@ -50,12 +50,10 @@ export default function LandingPage() {
         style={{ backgroundColor: "#241338", color: "white" }}
       >
         <div className="flex justify-center items-center">
-          <img
-            src={UTALogo}
-            alt="UTA Logo"
-            className="h-8 inline-block mr-16"
-          />
-          <div className="inline-block mr-16">Mavericks</div>
+          <img src={UTALogo} alt="UTA Logo" className="h-8 inline-block mr-8" />
+          <div className="inline-block mr-8">|</div>
+          <div className="inline-block mr-8">Mavericks</div>
+          <div className="inline-block mr-8">|</div>
           <div className="inline-block">Senior Design</div>
         </div>
       </footer>
