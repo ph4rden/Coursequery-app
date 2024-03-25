@@ -305,14 +305,21 @@ export default function Schedule() {
 
             try {
                 // Concurrently fetch data from both sources
-                const professorDataPromise = getProfessorData(course.data.professor);
-                const classDataPromise = getClassData(course.data.department, course.data.coursenumber);
-                
+                const professorDataPromise = getProfessorData(
+                    course.data.professor
+                );
+                const classDataPromise = getClassData(
+                    course.data.department,
+                    course.data.coursenumber
+                );
+
                 // Wait for both promises to resolve
-                const [professorData, classData] = await Promise.all([professorDataPromise, classDataPromise]);
+                const [professorData, classData] = await Promise.all([
+                    professorDataPromise,
+                    classDataPromise,
+                ]);
                 
-                // Combine the scraped data into the description or other fields as needed
-                const updatedDescription = `Professor Info: ${JSON.stringify(professorData)}, Class Info: ${JSON.stringify(classData)}`;
+                // const professorInfo = `Department: ${professorData.department}, School: ${professorData.school}, Rating: ${professorData.rating}, Difficulty: ${professorData.difficulty}, Total Ratings: ${professorData.total_ratings}, Would Take Again: ${professorData.would_take_again}%`;
 
                 return {
                     event_id: course.data._id,
@@ -327,7 +334,13 @@ export default function Schedule() {
                     department: course.data.department,
                     coursenumber: course.data.coursenumber,
                     location: course.data.location,
-                    description: updatedDescription,
+                    departments: professorData.department,
+                    school: professorData.school,
+                    rating: professorData.rating,
+                    difficulty: professorData.difficulty,
+                    totalRatings: professorData.total_ratings,
+                    wouldTakeAgain: professorData.would_take_again,
+                    description: classData.description,
                 };
             } catch (error) {
                 console.error("Error updating event with scraped data:", error);
@@ -336,7 +349,7 @@ export default function Schedule() {
                     ...course,
                     description: `${course.data.description}. Error fetching additional information.`,
                 };
-            } 
+            }
         });
 
         // Wait for all Promises to resolve and then set the new events
@@ -489,6 +502,30 @@ export default function Schedule() {
                                 </span>
                             </p>
                             <p className="text-lg font-semibold">
+                                Professor Rating:{" "}
+                                <span className="font-normal">
+                                    {event.rating || ""}
+                                </span>
+                            </p>
+                            <p className="text-lg font-semibold">
+                                Professor Difficulty:{" "}
+                                <span className="font-normal">
+                                    {event.difficulty || ""}
+                                </span>
+                            </p>
+                            <p className="text-lg font-semibold">
+                                Total Ratings:{" "}
+                                <span className="font-normal">
+                                    {event.totalRatings || ""}
+                                </span>
+                            </p>
+                            <p className="text-lg font-semibold">
+                                Would Take Again:{" "}
+                                <span className="font-normal">
+                                    {event.wouldTakeAgain || ""}%
+                                </span>
+                            </p>
+                            <p className="text-lg font-semibold">
                                 Department:{" "}
                                 <span className="font-normal">
                                     {event.department || ""}
@@ -501,15 +538,15 @@ export default function Schedule() {
                                 </span>
                             </p>
                             <p className="text-lg font-semibold">
-                                Location:{" "}
+                                Course Description:{" "}
                                 <span className="font-normal">
-                                    {event.location || ""}
+                                    {event.description || ""}
                                 </span>
                             </p>
                             <p className="text-lg font-semibold">
-                                Description:{" "}
+                                Location:{" "}
                                 <span className="font-normal">
-                                    {event.description || ""}
+                                    {event.location || ""}
                                 </span>
                             </p>
                         </div>
