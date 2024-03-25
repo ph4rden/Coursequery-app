@@ -47,10 +47,15 @@ export default function LandingPage() {
       </div>
       <footer
         className="absolute bottom-0 w-full text-center py-2"
-        style={{ backgroundColor: "#241338", color: "white" }}
+        style={{ backgroundColor: "#241338", color: "white", fontSize: "14px" }}
       >
         <div className="flex justify-center items-center">
-          <img src={UTALogo} alt="UTA Logo" className="h-8 inline-block mr-8" />
+          <img
+            src={UTALogo}
+            alt="UTA Logo"
+            style={{ width: "30px", height: "auto" }}
+            className="h-8 inline-block mr-8"
+          />
           <div className="inline-block mr-8">|</div>
           <div className="inline-block mr-8">Mavericks</div>
           <div className="inline-block mr-8">|</div>
