@@ -4,8 +4,10 @@ from bs4 import BeautifulSoup
 import requests
 from transformers import pipeline
 import time
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app, origins=["http://localhost:5173"])
 
 @app.route('/get_professors', methods=['POST'])
 def get_professors_api():
