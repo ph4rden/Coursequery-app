@@ -7,6 +7,7 @@ import LandingPage from "./pages/LandingPage.tsx";
 import ErrorPage from "./pages/ErrorPage.tsx";
 import Login from "./pages/Login.tsx";
 import Schedule from "./components/Schedule.tsx";
+import ContactUs from "./pages/ContactUs.tsx";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
@@ -26,7 +27,7 @@ const router = createBrowserRouter([
   {
     // Work in progress
     path: "dashboard/:scheduleId",
-    element: <Schedule />, 
+    element: <Schedule />,
   },
   {
     path: "/login",
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
   {
     path: "/register",
     element: <Register />,
+  },
+  {
+    path: "/contactus",
+    element: <ContactUs />,
   },
 ]);
 
