@@ -1,3 +1,4 @@
+// this file probably has too much code in it but eh it works
 import { Scheduler } from "@aldabil/react-scheduler";
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -157,7 +158,7 @@ export default function Schedule() {
                 },
             });
             setSelectedScheduleCourses([]);
-            const updatedEvents = await fetchRemote({});
+            const updatedEvents = events.filter(event => event.event_id !== deletedId);
             setEvents(updatedEvents);
             console.log("Deleted event:", res.data);
         } catch (error) {
@@ -380,7 +381,12 @@ export default function Schedule() {
         const resultDate = new Date(now.getTime());
         resultDate.setHours(0, 0, 0, 0); // Normalize the time to midnight
         const dayIndex = dayNames.indexOf(dayName.toLowerCase());
-        const daysUntilNext = (dayIndex + 7 - now.getDay()) % 7 || 7; // Calculate days until next occurrence
+        let daysUntilNext = (dayIndex + 7 - now.getDay()) % 7;
+    
+        // If daysUntilNext is 0, it means the day is today. 
+        // This line ensures that if it's currently the same day of the week, it schedules for today.
+        daysUntilNext = daysUntilNext === 0 ? 0 : daysUntilNext;
+    
         resultDate.setDate(now.getDate() + daysUntilNext);
         return resultDate;
     };

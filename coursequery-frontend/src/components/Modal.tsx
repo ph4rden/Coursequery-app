@@ -34,20 +34,14 @@ export default function Modal({ isOpen, onClose, handleAdd, handleScheduleName, 
                     <div className="mt-2 px-7 py-3">
                         <form onSubmit={handleSubmit}>
                             <Input
-                                onChange={(e) =>
-                                    handleScheduleName(e.target.value)
-                                }
+                                onChange={(e) => handleScheduleName(e.target.value)}
                                 value={scheduleName}
                                 placeholder="Schedule Name"
                             />
                             <div className="flex justify-evenly items-center px-4 py-3">
-                                <Button onClick={handleSubmit}>
-                                    {" "}
-                                    Add Schedule
-                                </Button>
-                                <Button variant="secondary" onClick={onClose}>
-                                    Cancel
-                                </Button>
+                                {/* Change to use type="submit" for proper form submission */}
+                                <Button type="submit">Add Schedule</Button>
+                                <Button variant="secondary" onClick={onClose}>Cancel</Button>
                             </div>
                         </form>
                     </div>
