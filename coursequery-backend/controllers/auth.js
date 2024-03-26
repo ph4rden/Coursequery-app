@@ -3,6 +3,8 @@ const asyncHandler = require("../middleware/async");
 const ErrorResponse = require("../utils/errorResponse");
 const sendEmail = require("../utils/sendEmail");
 const crypto = require("crypto");
+const passport = require('passport');
+const Auth_User = require("../models/Auth_User");
 
 // @desc    Register user
 // @route   POST /api/v1/auth/register
@@ -27,7 +29,7 @@ exports.register = asyncHandler(async (req, res, next) => {
 exports.login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
 
-  // validate email and password
+  // validate email and password`
   if (!email || !password) {
     return next(new ErrorResponse("Please provide an email and password", 400));
   }
@@ -48,6 +50,27 @@ exports.login = asyncHandler(async (req, res, next) => {
 
   sendTokenResponse(user, 200, res);
 });
+
+// @desc Login/Auth with Google
+// @route GET /auth/google
+exports.loginWithGoogle = passport.authenticate('google', { scope: ['profile'] });
+
+// @desc Google auth callback
+// @route GET /auth/google/callback
+exports.googleCallback = (req, res, next) => {
+  passport.authenticate('google', (err, user) => {
+    if (err) {
+      // If there's an error during authentication, send an error response
+      return res.status(500).json({ success: false, error: err.message });
+    }
+    if (!user) {
+      // If authentication fails, send a failure response
+      return res.status(401).json({ success: false, message: 'Authentication failed' });
+    }
+    // If the user is authenticated, send a success response with user data
+    res.status(200).json({ success: true, user });
+  })(req, res, next);
+};
 
 // @desc    Get current logged in user
 // @route   POST /api/v1/auth/me

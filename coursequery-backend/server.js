@@ -7,6 +7,10 @@ dotenv.config({ path: "./config/config.env" });
 const cookieParser = require('cookie-parser');
 const errorHandler = require('./middleware/error');
 const connectDB = require('./config/db');
+const passport = require('passport');
+require('./config/passport')(passport);
+const session = require('express-session');
+
 
 const mongoURL = process.env.mongoURL;
 const app = express();
@@ -14,6 +18,14 @@ const app = express();
 app.use(cors()); 
 app.use(express.json());
 app.use(cookieParser());
+app.use(session({
+  secret: 'Keyboard cat',
+  resave: false,
+  saveUninitialized: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 connectDB(); 
 
 // Routing 

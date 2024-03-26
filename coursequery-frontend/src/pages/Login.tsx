@@ -55,6 +55,17 @@ export default function LoginPage() {
         }
     };
 
+    const handleLogin = async () => {
+        try {
+          const response = await axios.get("http://localhost:8080/api/v1/auth/google/callback");
+          console.log(response.data); // Handle response data as needed
+          navigate('/dashboard'); // Redirect upon successful login
+        } catch (error) {
+          console.error('Error logging in:', error);
+          // Handle error if needed
+        }
+      };
+
     return (
         <div className="relative min-h-screen flex justify-center items-center flowy-bg">
             <div className="absolute top-12 right-12">
@@ -81,7 +92,7 @@ export default function LoginPage() {
                         <CardContent className="grid gap-4">
                             <div className="flex justify-center">
                                 <Button variant="outline">
-                                    <Icons.google className="mr-2 h-4 w-4" />
+                                    <Icons.google className="mr-2 h-4 w-4" onClick={handleLogin}/>
                                     Google
                                 </Button>
                             </div>
