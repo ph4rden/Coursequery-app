@@ -17,16 +17,34 @@ import { Icon } from "../components/Icon";
 
 export default function Schedule() {
     const navigate = useNavigate(); // Initialize useNavigate hook
+    const token = localStorage.getItem("token");
+
+    // Scrapers
+    const [isLoading, setIsLoading] = useState(false);
+    const ratemyprofessorscraperURL = "http://127.0.0.1:5000/get_professors";
+    const wikiscraperURL = "http://127.0.0.1:5000/wiki_scrape";
+    // Token and URL
+    const [URL, setURL] = useState<string>(
+        "http://localhost:8080/api/v1/courses"
+    );
 
     // Function to handle back navigation
     const handleBack = () => {
         navigate("/dashboard"); // Navigate back to the Dashboard component
     };
-    // Token and URL
-    const [URL, setURL] = useState<string>(
-        "http://localhost:8080/api/v1/courses"
+    // Events state and ID
+    const [events, setEvents] = useState<ProcessedEvent[]>([]);
+    const [toggleRefresh, setToggleRefresh] = useState(0);
+
+    // course events
+    const [courses, setCourses] = useState({} as any);
+
+    // Schedule Specific Stuff
+    let { scheduleId } = useParams<{ scheduleId: string }>();
+    const [scheduleName, setScheduleName] = useState("");
+    const [selectedScheduleCourses, setSelectedScheduleCourses] = useState(
+        {} as any
     );
-    const token = localStorage.getItem("token");
     // Map day of week to string
     const dayOfWeekMap: { [key: number]: string } = {
         0: "sunday",
@@ -38,18 +56,6 @@ export default function Schedule() {
         6: "saturday",
     };
 
-    // Events state and ID
-    const [events, setEvents] = useState<ProcessedEvent[]>([]);
-
-    // course events
-    const [courses, setCourses] = useState({} as any);
-
-    // Schedule Specific Stuff
-    let { scheduleId } = useParams<{ scheduleId: string }>();
-    const [scheduleName, setScheduleName] = useState("");
-    const [selectedScheduleCourses, setSelectedScheduleCourses] = useState(
-        {} as any
-    );
 
     // using the scheduleId passed in from the URL, grabbed using useParams, to fetch the schedule data
     const fetchScheduleWithId = async (id: string) => {
@@ -99,57 +105,7 @@ export default function Schedule() {
         }
     };
 
-    // Fetch events from remote DB
-    const fetchRemote = async (query: ViewEvent): Promise<ProcessedEvent[]> => {
-        try {
-            const response = await axios.get(URL, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            const data = response.data.data;
-            // console.log("fetchRemote Output: ", data);
-            const events = data.map((event: any) => {
-                const [startHours, startMinutes] = event.startTime.split(":");
-                const [endHours, endMinutes] = event.endTime.split(":");
-
-                // Format the time with leading zeros if necessary
-                const formattedStartTime = `${parseInt(startHours)
-                    .toString()
-                    .padStart(2, "0")}:${startMinutes.padStart(2, "0")}`;
-                const formattedEndTime = `${parseInt(endHours)
-                    .toString()
-                    .padStart(2, "0")}:${endMinutes.padStart(2, "0")}`;
-                const startDate = new Date();
-                const endDate = new Date();
-
-                startDate.setHours(parseInt(formattedStartTime));
-                endDate.setHours(parseInt(formattedEndTime));
-
-                return {
-                    event_id: event._id,
-                    title: event.title,
-                    start: startDate,
-                    end: endDate,
-                    disabled: false,
-                    admin_id: [1, 2, 3, 4],
-                    // everything after this has yet to be implemented into the component
-                    days: event.days,
-                    professor: event.professor,
-                    department: event.department,
-                    coursenumber: event.coursenumber,
-                    location: event.location,
-                    description: event.description,
-                };
-            });
-            setEvents(events);
-        } catch (error) {
-            throw new Error("Error fetching data");
-        }
-    };
-
     // Handle delete event
-    // TODO: Rerender the schedule after deleting an event
     const handleDelete = async (deletedId: string): Promise<void> => {
         try {
             const res = await axios.delete(`${URL}/${deletedId}`, {
@@ -160,6 +116,7 @@ export default function Schedule() {
             setSelectedScheduleCourses([]);
             const updatedEvents = events.filter(event => event.event_id !== deletedId);
             setEvents(updatedEvents);
+            setToggleRefresh(toggleRefresh + 1);
             console.log("Deleted event:", res.data);
         } catch (error) {
             console.error("Error deleting event:", error);
@@ -184,6 +141,7 @@ export default function Schedule() {
                         },
                     }
                 );
+                setToggleRefresh(toggleRefresh + 1);
                 responseData = response.data; // This now holds the resolved data
             } catch (error) {
                 console.error("Error during PUT request:", error);
@@ -242,14 +200,10 @@ export default function Schedule() {
                 throw error;
             }
         }
+        setToggleRefresh(toggleRefresh + 1);
         // Perform further actions with responseData if needed
         return { ...event, event_id: event.event_id }; // Adjust as needed based on actual response structure
     };
-
-    // Scrapers
-    const [isLoading, setIsLoading] = useState(false);
-    const ratemyprofessorscraperURL = "http://127.0.0.1:5000/get_professors";
-    const wikiscraperURL = "http://127.0.0.1:5000/wiki_scrape";
 
     const findProfessorRMP = async (professor) => {
         const enrichedCourses = await axios.post(ratemyprofessorscraperURL, {
@@ -414,7 +368,7 @@ export default function Schedule() {
         };
 
         fetchScheduleSpecificEvents();
-    }, [scheduleId]);
+    }, [scheduleId, toggleRefresh]);
 
     useEffect(() => {
         // This should only run after selectedScheduleCourses is populated
@@ -439,7 +393,6 @@ export default function Schedule() {
         <div className="flex flex-col justify-between h-screen">
             {isLoading && (
                 <div className="fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center bg-black bg-opacity-50 z-[100]">
-                    {/* Spinner Icon from Lucide with Tailwind's animate-spin */}
                     <Icon.spinner className="h-8 w-8 animate-spin" />
                 </div>
             )}
@@ -564,7 +517,6 @@ export default function Schedule() {
             />
             <div className="flex justify-center items-center h-32">
                 {" "}
-                {/* Adjust height as needed */}
                 <Button
                     variant="outline"
                     onClick={handleBack}
