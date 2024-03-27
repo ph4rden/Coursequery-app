@@ -4,11 +4,14 @@ from bs4 import BeautifulSoup
 import requests
 from transformers import pipeline
 import time
+from flask_cors import CORS
 import praw
 import os
 from dotenv import load_dotenv
 
+
 app = Flask(__name__)
+CORS(app, origins=["http://localhost:5173"])
 
 @app.route('/get_professors', methods=['POST'])
 def get_professors_api():
@@ -35,6 +38,7 @@ def wiki_scrape_api():
     data = request.json
     section = data['section']
     number = data['number']
+
     try:
         response = requests.get(url="https://catalog.uta.edu/search/?P=" + section + "%20" + number)
         soup = BeautifulSoup(response.content, 'lxml')
