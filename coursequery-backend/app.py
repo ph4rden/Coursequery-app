@@ -64,9 +64,6 @@ def classify_text_api():
     return jsonify(response)
 
 
-from dotenv import load_dotenv
-import os
-
 dotenv_path = os.path.join(os.path.dirname(__file__), 'config', '.env')
 # Load environment variables from the .env file
 load_dotenv(dotenv_path)
