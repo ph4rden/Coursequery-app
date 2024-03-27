@@ -5,6 +5,10 @@ import requests
 from transformers import pipeline
 import time
 from flask_cors import CORS
+import praw
+import os
+from dotenv import load_dotenv
+
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:5173"])
@@ -63,5 +67,43 @@ def classify_text_api():
     }
     return jsonify(response)
 
+
+dotenv_path = os.path.join(os.path.dirname(__file__), 'config', '.env')
+# Load environment variables from the .env file
+load_dotenv(dotenv_path)
+
+reddit = praw.Reddit(
+    client_id=os.environ.get('REDDIT_CLIENT_ID'),
+    client_secret=os.environ.get('REDDIT_CLIENT_SECRET'),
+    user_agent=os.environ.get('REDDIT_USER_AGENT')
+)
+@app.route('/reddit_scraper', methods=['POST'])
+def redditscraper():
+    data = request.json
+    search_term = data.get('search_term')
+    if not search_term:
+        return jsonify({"error": "search_term is required"}), 400
+
+    contents = []  # List to store sanitized content of each post
+    for submission in reddit.subreddit("all").search(search_term, limit=10):
+        # Filter out placeholder content and limit the character count
+        if submission.selftext and submission.selftext != "Content not available for this post.":
+            # Remove newlines, carriage returns, and trailing commas, then strip
+            sanitized_content = submission.selftext.replace('\n', ' ').replace('\r', '').strip().rstrip(',')
+            sanitized_content = sanitized_content.replace('"', '')  # Remove double quotes
+            if sanitized_content:
+                contents.append(sanitized_content)
+
+    # Concatenate all contents into a single string, separated by spaces and ensure it's all on one line
+    single_string_content = ' '.join(contents)
+    # Limit to 2163 characters
+    single_string_content = single_string_content[:2000]
+
+    return single_string_content
+
+
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
