@@ -306,7 +306,6 @@ export default function Schedule() {
                 };
             }
         });
-
         // Wait for all Promises to resolve and then set the new events
         Promise.all(eventPromises)
             .then((updatedEvents) => {
@@ -511,7 +510,6 @@ export default function Schedule() {
                         </div>
                     );
                 }}
-                // getRemoteEvents={fetchRemote}
                 onConfirm={handleConfirm}
                 onDelete={handleDelete}
             />
